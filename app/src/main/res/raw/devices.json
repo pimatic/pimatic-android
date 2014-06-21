@@ -1,0 +1,235 @@
+{
+  "devices": [
+    {
+      "id": "my-phone",
+      "name": "my smartphone",
+      "template": "presence",
+      "attributes": [
+        {
+          "description": "presence of the human/device",
+          "type": "boolean",
+          "labels": [
+            "present",
+            "absent"
+          ],
+          "label": "Presence",
+          "name": "presence",
+          "value": false
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "my-phone",
+        "name": "my smartphone",
+        "class": "PingPresence",
+        "host": "192.168.1.25",
+        "interval": 1000
+      },
+      "configDefaults": {
+        "host": "",
+        "interval": 5000,
+        "timeout": 2000,
+        "retries": 4
+      }
+    },
+    {
+      "id": "test-shell2",
+      "name": "a name2",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "test-shell2",
+        "name": "a name2",
+        "class": "ShellSwitch",
+        "onCommand": "echo on",
+        "offCommand": "echo off"
+      },
+      "configDefaults": {
+        "getStateCommand": "echo off"
+      }
+    },
+    {
+      "id": "test-shell",
+      "name": "a name",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "test-shell",
+        "name": "a name",
+        "class": "ShellSwitch",
+        "onCommand": "echo on",
+        "offCommand": "echo off"
+      },
+      "configDefaults": {
+        "getStateCommand": "echo off"
+      }
+    },
+    {
+      "id": "log-reader",
+      "name": "log reader",
+      "template": "device",
+      "attributes": [
+        {
+          "description": "wlan-status",
+          "type": "string",
+          "enum": [
+            "connected",
+            "unconnected"
+          ],
+          "label": "Wlan-status",
+          "name": "wlan-status"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "log-reader",
+        "name": "log reader",
+        "class": "LogWatcher",
+        "file": "/var/log/kern.log",
+        "attributes": [
+          {
+            "name": "wlan-status",
+            "type": "string"
+          }
+        ],
+        "lines": [
+          {
+            "match": " wlan0: associated",
+            "predicate": "wlan connects",
+            "wlan-status": "connected"
+          },
+          {
+            "match": "wlan0: deauthenticating",
+            "predicate": "wlan disconnects",
+            "wlan-status": "unconnected"
+          }
+        ]
+      },
+      "configDefaults": {
+        "file": "",
+        "lines": ""
+      }
+    },
+    {
+      "id": "test-buttons",
+      "name": "Test buttons",
+      "template": "buttons",
+      "attributes": [
+        {
+          "description": "The last pressed button",
+          "type": "string",
+          "label": "Button",
+          "name": "button"
+        }
+      ],
+      "actions": [
+        {
+          "params": {
+            "buttonId": {
+              "type": "string"
+            }
+          },
+          "description": "raise the shutter",
+          "name": "buttonPressed"
+        }
+      ],
+      "config": {
+        "id": "test-buttons",
+        "name": "Test buttons",
+        "class": "ButtonsDevice",
+        "buttons": [
+          {
+            "id": "test-1",
+            "text": "Test 1"
+          },
+          {
+            "id": "test-2",
+            "text": "Test 2"
+          }
+        ]
+      },
+      "configDefaults": {
+        "buttons": []
+      }
+    }
+  ],
+  "success": true
+}

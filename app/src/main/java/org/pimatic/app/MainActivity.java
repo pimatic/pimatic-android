@@ -23,7 +23,20 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+import org.json.JSONTokener;
+import org.pimatic.model.Device;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 
 public class MainActivity extends ActionBarActivity
@@ -52,34 +65,52 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-        Log.v("create", "hi!!!!!!!!!!!!!!");
+//        Log.v("create", "hi!!!!!!!!!!!!!!");
+//        try {
+//            final Socket socket = IO.socket("http://94.45.235.71");
+//            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "connect: " + Arrays.toString(args));
+//                    socket.emit("foo", "hi");
+//                    socket.disconnect();
+//                }
+//            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "event: " + Arrays.toString(args));
+//                }
+//            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket","disconnect");
+//                }
+//            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "Error: " + Arrays.toString(args));
+//                }
+//            });
+//
+//            Log.v("socket", "connect");
+//            socket.connect();
+//        }catch (URISyntaxException e) {
+//            Log.v("error", e.getMessage());
+//        }
+        InputStream is = getResources().openRawResource(R.raw.devices);
+        String inputStreamString = new Scanner(is,"UTF-8").useDelimiter("\\A").next();
+        JSONTokener tokener = new JSONTokener(inputStreamString);
+        List<Device> list = new ArrayList<Device>();
         try {
-            final Socket socket = IO.socket("http://localhost");
-            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket","" + args);
-                    socket.emit("foo", "hi");
-                    socket.disconnect();
-                }
-
-            }).on("event", new Emitter.Listener() {
-
-                @Override
-                public void call(Object... args) {
-                }
-
-            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-
-                @Override
-                public void call(Object... args) {
-                }
-
-            });
-            socket.connect();
-        }catch (URISyntaxException e) {
-            Log.v("error", e.getMessage());
+            JSONArray devices = new JSONObject(tokener).getJSONArray("devices");
+            for(int i = 0; i < devices.length(); i++) {
+                JSONObject deviceObj = devices.getJSONObject(i);
+                Device d = Device.createDeviceFromJson(deviceObj);
+                list.add(d);
+            }
+            Log.v("json", "devices: " + devices.toString());
+        }catch(JSONException e) {
+            e.printStackTrace();
         }
 
     }
