@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,6 +18,12 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+
+import java.net.URISyntaxException;
 
 
 public class MainActivity extends ActionBarActivity
@@ -45,6 +52,36 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        Log.v("create", "hi!!!!!!!!!!!!!!");
+        try {
+            final Socket socket = IO.socket("http://localhost");
+            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+
+                @Override
+                public void call(Object... args) {
+                    Log.v("socket","" + args);
+                    socket.emit("foo", "hi");
+                    socket.disconnect();
+                }
+
+            }).on("event", new Emitter.Listener() {
+
+                @Override
+                public void call(Object... args) {
+                }
+
+            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+
+                @Override
+                public void call(Object... args) {
+                }
+
+            });
+            socket.connect();
+        }catch (URISyntaxException e) {
+            Log.v("error", e.getMessage());
+        }
+
     }
 
     @Override
