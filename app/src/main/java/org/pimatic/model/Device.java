@@ -60,15 +60,6 @@ public class Device {
     private String template;
     private ArrayList<Attribute> attributes;
 
-    public static Device createDeviceFromJson(JSONObject obj) throws JSONException {
-        String template = obj.getString("template");
-        if(template.equals("switch")) {
-            return new SwitchDevice(obj);
-        } else {
-            return new Device(obj);
-        }
-    }
-
     public Device(JSONObject obj) throws JSONException {
         this(obj.getString("name"), obj.getString("id"), obj.getString("id"));
         this.attributes = new ArrayList<Attribute>();

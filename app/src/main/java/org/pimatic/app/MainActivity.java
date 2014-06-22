@@ -14,9 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import org.pimatic.connection.IO;
@@ -27,7 +25,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+import org.pimatic.connection.RequestMethod;
+import org.pimatic.connection.RestClient;
 import org.pimatic.model.Device;
+import org.pimatic.model.DeviceManager;
 
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -64,56 +65,64 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
         Log.v("create", "hi!!!!!!!!!!!!!!");
-        try {
-            final Socket socket = IO.socket("http://localhost");
-            final Manager manager = IO.io;
-            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "connect: " + Arrays.toString(args));
-                    socket.emit("foo", "hi");
-                    socket.disconnect();
-                }
-            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "event: " + Arrays.toString(args));
-                }
-            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket","disconnect");
-                }
-            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "Error: " + Arrays.toString(args));
-                }
-            });
-            Emitter.Listener l = new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "Error: " + Arrays.toString(args));
-                }
-            };
-            manager.on(Manager.EVENT_CONNECT_TIMEOUT, l);
 
-            Log.v("socket", "connect");
-            socket.connect();
-        }catch (URISyntaxException e) {
-            Log.v("error", e.getMessage());
-        }
+//        RestClient client = new RestClient("http://admin:admin@192.168.1.78:8899/api/devices");
+//
+//        try {
+//            client.Execute(RequestMethod.GET);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        String response = client.getResponse();
+//        if(response != null) Log.v("response",response);
+//
+//        try {
+//            final Socket socket = IO.socket("http://admin:admin@192.168.1.78:8899");
+//            final Manager manager = IO.io;
+//            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "connect: " + Arrays.toString(args));
+//                    socket.emit("foo", "hi");
+//                    socket.disconnect();
+//                }
+//            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "event: " + Arrays.toString(args));
+//                }
+//            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket","disconnect");
+//                }
+//            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "Error: " + Arrays.toString(args));
+//                }
+//            });
+//            Emitter.Listener l = new Emitter.Listener() {
+//                @Override
+//                public void call(Object... args) {
+//                    Log.v("socket", "Error: " + Arrays.toString(args));
+//                }
+//            };
+//            manager.on(Manager.EVENT_CONNECT_TIMEOUT, l);
+//
+//            Log.v("socket", "connect");
+//            socket.connect();
+//        }catch (URISyntaxException e) {
+//            Log.v("error", e.getMessage());
+//        }
         InputStream is = getResources().openRawResource(R.raw.devices);
         String inputStreamString = new Scanner(is,"UTF-8").useDelimiter("\\A").next();
         JSONTokener tokener = new JSONTokener(inputStreamString);
-        List<Device> list = new ArrayList<Device>();
+        List<Device> list;
         try {
             JSONArray devices = new JSONObject(tokener).getJSONArray("devices");
-            for(int i = 0; i < devices.length(); i++) {
-                JSONObject deviceObj = devices.getJSONObject(i);
-                Device d = Device.createDeviceFromJson(deviceObj);
-                list.add(d);
-            }
+            DeviceManager.updateFromJson(devices);
+            list = DeviceManager.getDevices();
             Log.v("json", "devices: " + devices.toString());
 
             final ListView listview = (ListView) findViewById(R.id.devciesListView);
@@ -143,7 +152,7 @@ public class MainActivity extends ActionBarActivity
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
+                .replace(R.id.container, DevicePageFragment.newInstance(position + 1))
                 .commit();
     }
 
@@ -197,7 +206,7 @@ public class MainActivity extends ActionBarActivity
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class DevicePageFragment extends Fragment {
         /**
          * The fragment argument representing the section number for this
          * fragment.
@@ -208,15 +217,15 @@ public class MainActivity extends ActionBarActivity
          * Returns a new instance of this fragment for the given section
          * number.
          */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
+        public static DevicePageFragment newInstance(int sectionNumber) {
+            DevicePageFragment fragment = new DevicePageFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
             fragment.setArguments(args);
             return fragment;
         }
 
-        public PlaceholderFragment() {
+        public DevicePageFragment() {
         }
 
         @Override

@@ -1,5 +1,6 @@
 package org.pimatic.app;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
@@ -14,7 +15,6 @@ import android.widget.TextView;
 import org.pimatic.model.Device;
 import org.pimatic.model.DeviceVisitor;
 import org.pimatic.model.SwitchDevice;
-import org.w3c.dom.Text;
 
 public class DeviceArrayAdapter extends ArrayAdapter<Device> {
 
@@ -31,9 +31,14 @@ public class DeviceArrayAdapter extends ArrayAdapter<Device> {
 
     private static class DeviceViewHolder<D extends Device> {
         protected TextView deviceName;
+        protected ArrayList<TextView> attributeViews = new ArrayList<TextView>();
 
         public void update(D d) {
             deviceName.setText(d.getName());
+            for (TextView v : attributeViews) {
+                Device.Attribute a = (Device.Attribute)v.getTag();
+                v.setText(a.getFormatedValue());
+            }
         }
 
     }
@@ -62,7 +67,9 @@ public class DeviceArrayAdapter extends ArrayAdapter<Device> {
             LinearLayout attrsLayout = (LinearLayout)view.findViewById(R.id.attributesLayout);
             for(Device.Attribute attr : d.getAttributes()) {
                 TextView attrView = new TextView(view.getContext());
+                attrView.setTag(attr);
                 attrView.setText(attr.getFormatedValue());
+                viewHolder.attributeViews.add(attrView);
                 attrsLayout.addView(attrView);
             }
             viewHolder.update(d);
