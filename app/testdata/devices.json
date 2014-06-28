@@ -1,0 +1,1096 @@
+{
+  "devices": [
+    {
+      "id": "my-phone",
+      "name": "my smartphone",
+      "template": "presence",
+      "attributes": [
+        {
+          "description": "presence of the human/device",
+          "type": "boolean",
+          "labels": [
+            "present",
+            "absent"
+          ],
+          "label": "Presence",
+          "name": "presence",
+          "value": false
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "my-phone",
+        "name": "my smartphone",
+        "class": "PingPresence",
+        "host": "192.168.1.25",
+        "interval": 1000
+      },
+      "configDefaults": {
+        "host": "",
+        "interval": 5000,
+        "timeout": 2000,
+        "retries": 4
+      }
+    },
+    {
+      "id": "my-tablet",
+      "name": "my tablet",
+      "template": "presence",
+      "attributes": [
+        {
+          "description": "presence of the human/device",
+          "type": "boolean",
+          "labels": [
+            "present",
+            "absent"
+          ],
+          "label": "Presence",
+          "name": "presence",
+          "value": false
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "my-tablet",
+        "name": "my tablet",
+        "class": "PingPresence",
+        "host": "192.168.1.21",
+        "interval": 1000
+      },
+      "configDefaults": {
+        "host": "",
+        "interval": 5000,
+        "timeout": 2000,
+        "retries": 4
+      }
+    },
+    {
+      "id": "test-shell2",
+      "name": "a name2",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "test-shell2",
+        "name": "a name2",
+        "class": "ShellSwitch",
+        "onCommand": "echo on",
+        "offCommand": "echo off"
+      },
+      "configDefaults": {
+        "getStateCommand": "echo off"
+      }
+    },
+    {
+      "id": "test-shell",
+      "name": "a name",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "test-shell",
+        "name": "a name",
+        "class": "ShellSwitch",
+        "onCommand": "echo on",
+        "offCommand": "echo off"
+      },
+      "configDefaults": {
+        "getStateCommand": "echo off"
+      }
+    },
+    {
+      "id": "log-reader",
+      "name": "log reader",
+      "template": "device",
+      "attributes": [
+        {
+          "description": "wlan-status",
+          "type": "string",
+          "enum": [
+            "connected",
+            "unconnected"
+          ],
+          "label": "Wlan-status",
+          "name": "wlan-status"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "log-reader",
+        "name": "log reader",
+        "class": "LogWatcher",
+        "file": "/var/log/kern.log",
+        "attributes": [
+          {
+            "name": "wlan-status",
+            "type": "string"
+          }
+        ],
+        "lines": [
+          {
+            "match": " wlan0: associated",
+            "predicate": "wlan connects",
+            "wlan-status": "connected"
+          },
+          {
+            "match": "wlan0: deauthenticating",
+            "predicate": "wlan disconnects",
+            "wlan-status": "unconnected"
+          }
+        ]
+      },
+      "configDefaults": {
+        "file": "",
+        "lines": ""
+      }
+    },
+    {
+      "id": "pilight-bed-Lamp1",
+      "name": "Lampe_Vorne",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "pilight-bed-Lamp1",
+        "name": "Lampe_Vorne",
+        "class": "PilightSwitch",
+        "inPilightConfig": true,
+        "location": "bed",
+        "device": "Lamp1",
+        "lastState": true
+      },
+      "configDefaults": {
+        "lastState": false
+      }
+    },
+    {
+      "id": "pilight-bed-router",
+      "name": "Router",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "pilight-bed-router",
+        "name": "Router",
+        "class": "PilightSwitch",
+        "inPilightConfig": true,
+        "location": "bed",
+        "device": "router",
+        "lastState": true
+      },
+      "configDefaults": {
+        "lastState": false
+      }
+    },
+    {
+      "id": "pilight-living-tv",
+      "name": "TV",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "pilight-living-tv",
+        "name": "TV",
+        "class": "PilightSwitch",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "tv",
+        "lastState": true
+      },
+      "configDefaults": {
+        "lastState": false
+      }
+    },
+    {
+      "id": "pilight-test-dimmer",
+      "name": "Licht Couch",
+      "template": "dimmer",
+      "attributes": [
+        {
+          "description": "the current dim level",
+          "type": "number",
+          "unit": "%",
+          "label": "Dimlevel",
+          "name": "dimlevel"
+        },
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "sets the level of the dimmer",
+          "params": {
+            "dimlevel": {
+              "type": "number"
+            }
+          },
+          "name": "changeDimlevelTo"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "turns the dim level to 100%",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the dim level to 0%",
+          "name": "turnOff"
+        }
+      ],
+      "config": {
+        "id": "pilight-test-dimmer",
+        "name": "Licht Couch",
+        "class": "PilightDimmer",
+        "inPilightConfig": true,
+        "location": "test",
+        "device": "dimmer",
+        "minDimlevel": 0,
+        "maxDimlevel": 15,
+        "lastDimlevel": 35
+      },
+      "configDefaults": {
+        "lastDimlevel": 0
+      }
+    },
+    {
+      "id": "pilight-test-dimmer2",
+      "name": "Licht Couch 2",
+      "template": "dimmer",
+      "attributes": [
+        {
+          "description": "the current dim level",
+          "type": "number",
+          "unit": "%",
+          "label": "Dimlevel",
+          "name": "dimlevel"
+        },
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "sets the level of the dimmer",
+          "params": {
+            "dimlevel": {
+              "type": "number"
+            }
+          },
+          "name": "changeDimlevelTo"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "turns the dim level to 100%",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the dim level to 0%",
+          "name": "turnOff"
+        }
+      ],
+      "config": {
+        "id": "pilight-test-dimmer2",
+        "name": "Licht Couch 2",
+        "class": "PilightDimmer",
+        "inPilightConfig": true,
+        "location": "test",
+        "device": "dimmer2",
+        "minDimlevel": 0,
+        "maxDimlevel": 15,
+        "lastDimlevel": 55
+      },
+      "configDefaults": {
+        "lastDimlevel": 0
+      }
+    },
+    {
+      "id": "pilight-test-door",
+      "name": "Door",
+      "template": "contact",
+      "attributes": [
+        {
+          "description": "state of the contact",
+          "type": "boolean",
+          "labels": [
+            "closed",
+            "opened"
+          ],
+          "label": "Contact",
+          "name": "contact"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-test-door",
+        "name": "Door",
+        "class": "PilightContact",
+        "inPilightConfig": true,
+        "location": "test",
+        "device": "door"
+      },
+      "configDefaults": {
+        "lastContactState": false
+      }
+    },
+    {
+      "id": "pilight-test-screen",
+      "name": "Screen",
+      "template": "shutter",
+      "attributes": [
+        {
+          "label": "Position",
+          "description": "state of the shutter",
+          "type": "string",
+          "enum": [
+            "up",
+            "down",
+            "stopped"
+          ],
+          "name": "position"
+        }
+      ],
+      "actions": [
+        {
+          "description": "raise the shutter",
+          "name": "moveUp"
+        },
+        {
+          "description": "lower the shutter",
+          "name": "moveDown"
+        },
+        {
+          "description": "stops the shutter move",
+          "name": "stop"
+        },
+        {
+          "description": "changes the shutter state",
+          "params": {
+            "state": {
+              "type": "string"
+            }
+          },
+          "name": "moveToPosition"
+        }
+      ],
+      "config": {
+        "id": "pilight-test-screen",
+        "name": "Screen",
+        "class": "PilightShutter",
+        "inPilightConfig": true,
+        "location": "test",
+        "device": "screen"
+      },
+      "configDefaults": {
+        "lastPosition": "stopped"
+      }
+    },
+    {
+      "id": "pilight-work-rpi-temperature",
+      "name": "Raspberry Pi Temp",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-work-rpi-temperature",
+        "name": "Raspberry Pi Temp",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "work",
+        "device": "rpi-temperature",
+        "hasTemperature": true,
+        "deviceDecimals": 3,
+        "hasHumidity": false,
+        "lastTemperature": 43.312
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-work-temperature",
+      "name": "Temperatur",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        },
+        {
+          "description": "the messured humidity",
+          "type": "number",
+          "unit": "%",
+          "label": "Humidity",
+          "name": "humidity"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-work-temperature",
+        "name": "Temperatur",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "work",
+        "device": "temperature",
+        "hasHumidity": true,
+        "hasTemperature": true,
+        "deviceDecimals": 1,
+        "lastTemperature": 22.4,
+        "lastHumidity": 41.6
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-work-rpitemperature",
+      "name": "Raspberry Pi Temp",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-work-rpitemperature",
+        "name": "Raspberry Pi Temp",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "work",
+        "device": "rpitemperature",
+        "hasTemperature": true,
+        "deviceDecimals": 3,
+        "hasHumidity": false,
+        "lastTemperature": 47.615
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-test-switch",
+      "name": "switch",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "pilight-test-switch",
+        "name": "switch",
+        "class": "PilightSwitch",
+        "inPilightConfig": true,
+        "location": "test",
+        "device": "switch",
+        "lastState": true
+      },
+      "configDefaults": {
+        "lastState": false
+      }
+    },
+    {
+      "id": "pilight-living-temperature",
+      "name": "Temperature 2",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        },
+        {
+          "description": "the messured humidity",
+          "type": "number",
+          "unit": "%",
+          "label": "Humidity",
+          "name": "humidity"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-living-temperature",
+        "name": "Temperature 2",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "temperature",
+        "hasHumidity": true,
+        "hasTemperature": true,
+        "deviceDecimals": 1,
+        "lastTemperature": 20.3,
+        "lastHumidity": 54.7
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-living-rpitemp2",
+      "name": "Raspberry Pi Temp. 2",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-living-rpitemp2",
+        "name": "Raspberry Pi Temp. 2",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "rpitemp2",
+        "hasTemperature": true,
+        "deviceDecimals": 3,
+        "hasHumidity": false,
+        "lastTemperature": 43.312
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-living-rpitemp",
+      "name": "Raspberry Pi Temp 2",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-living-rpitemp",
+        "name": "Raspberry Pi Temp 2",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "rpitemp",
+        "hasTemperature": true,
+        "deviceDecimals": 3,
+        "hasHumidity": false,
+        "lastTemperature": 42.236
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-living-weather",
+      "name": "Weather",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-living-weather",
+        "name": "Weather",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "weather",
+        "deviceDecimals": 2,
+        "hasHumidity": false,
+        "hasTemperature": false,
+        "lastTemperature": 23,
+        "lastHumidity": 76
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "pilight-living-dimmer",
+      "name": "Dimmer",
+      "template": "dimmer",
+      "attributes": [
+        {
+          "description": "the current dim level",
+          "type": "number",
+          "unit": "%",
+          "label": "Dimlevel",
+          "name": "dimlevel"
+        },
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "sets the level of the dimmer",
+          "params": {
+            "dimlevel": {
+              "type": "number"
+            }
+          },
+          "name": "changeDimlevelTo"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "turns the dim level to 100%",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the dim level to 0%",
+          "name": "turnOff"
+        }
+      ],
+      "config": {
+        "id": "pilight-living-dimmer",
+        "name": "Dimmer",
+        "class": "PilightDimmer",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "dimmer",
+        "minDimlevel": 0,
+        "maxDimlevel": 15,
+        "lastDimlevel": 0
+      },
+      "configDefaults": {
+        "lastDimlevel": 0
+      }
+    },
+    {
+      "id": "pilight-living-switch",
+      "name": "Switch",
+      "template": "switch",
+      "attributes": [
+        {
+          "description": "the current state of the switch",
+          "type": "boolean",
+          "labels": [
+            "on",
+            "off"
+          ],
+          "label": "State",
+          "name": "state"
+        }
+      ],
+      "actions": [
+        {
+          "description": "turns the switch on",
+          "name": "turnOn"
+        },
+        {
+          "description": "turns the switch off",
+          "name": "turnOff"
+        },
+        {
+          "description": "changes the switch to on or off",
+          "params": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "changeStateTo"
+        },
+        {
+          "description": "returns the current state of the switch",
+          "returns": {
+            "state": {
+              "type": "boolean"
+            }
+          },
+          "name": "getState"
+        }
+      ],
+      "config": {
+        "id": "pilight-living-switch",
+        "name": "Switch",
+        "class": "PilightSwitch",
+        "inPilightConfig": true,
+        "location": "living",
+        "device": "switch",
+        "lastState": false
+      },
+      "configDefaults": {
+        "lastState": false
+      }
+    },
+    {
+      "id": "pilight-work-rpitemp",
+      "name": "Raspberry Pi Temp",
+      "template": "temperature",
+      "attributes": [
+        {
+          "description": "the messured temperature",
+          "type": "number",
+          "unit": "°C",
+          "label": "Temperature",
+          "name": "temperature"
+        }
+      ],
+      "actions": [],
+      "config": {
+        "id": "pilight-work-rpitemp",
+        "name": "Raspberry Pi Temp",
+        "class": "PilightTemperatureSensor",
+        "inPilightConfig": true,
+        "location": "work",
+        "device": "rpitemp",
+        "hasTemperature": true,
+        "deviceDecimals": 3,
+        "hasHumidity": false,
+        "lastTemperature": 44.925
+      },
+      "configDefaults": {
+        "lastTemperature": 0,
+        "lastHumidity": 0
+      }
+    },
+    {
+      "id": "test-buttons",
+      "name": "Test buttons",
+      "template": "buttons",
+      "attributes": [
+        {
+          "description": "The last pressed button",
+          "type": "string",
+          "label": "Button",
+          "name": "button"
+        }
+      ],
+      "actions": [
+        {
+          "params": {
+            "buttonId": {
+              "type": "string"
+            }
+          },
+          "description": "raise the shutter",
+          "name": "buttonPressed"
+        }
+      ],
+      "config": {
+        "id": "test-buttons",
+        "name": "Test buttons",
+        "class": "ButtonsDevice",
+        "buttons": [
+          {
+            "id": "test-1",
+            "text": "Test 1"
+          },
+          {
+            "id": "test-2",
+            "text": "Test 2"
+          }
+        ]
+      },
+      "configDefaults": {
+        "buttons": []
+      }
+    }
+  ],
+  "success": true
+}

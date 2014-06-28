@@ -16,40 +16,17 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.github.nkzawa.emitter.Emitter;
-
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.drafts.Draft_17;
-import org.java_websocket.handshake.ServerHandshake;
-import org.pimatic.connection.IO;
-
-import com.github.nkzawa.engineio.client.Transport;
-import com.github.nkzawa.engineio.client.TransportHelper;
-import com.github.nkzawa.socketio.client.EngineHelper;
-import com.github.nkzawa.socketio.client.Manager;
-import com.github.nkzawa.socketio.client.Socket;
-import com.github.nkzawa.thread.EventThread;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.pimatic.connection.RequestMethod;
-import org.pimatic.connection.RestClient;
+import org.pimatic.connection.SocketIOClient;
 import org.pimatic.model.Device;
 import org.pimatic.model.DeviceManager;
 
 import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
 
 
 public class MainActivity extends ActionBarActivity
@@ -90,125 +67,44 @@ public class MainActivity extends ActionBarActivity
 //        String response = client.getResponse();
 //        if(response != null) Log.v("response",response);
 
-        Map<String, String> headers = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-        this.emit(EVENT_REQUEST_HEADERS, headers);
+        SocketIOClient client = new SocketIOClient("192.168.1.78", 8899) {
+            @Override
+            public void onMessage(String eventId, Object jsonData) {
+                Log.i("socket.io", "Event: " + eventId + ", data: " + jsonData);
 
-        final WebSocket self = this;
-        try {
-            this.ws = new WebSocketClient(new URI(this.uri()), new Draft_17(), headers, 0) {
-                @Override
-                public void onOpen(final ServerHandshake serverHandshake) {
-                    EventThread.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            Map<String, String> headers = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
-                            Iterator<String> it = serverHandshake.iterateHttpFields();
-                            while (it.hasNext()) {
-                                String field = it.next();
-                                if (field == null) continue;
-                                headers.put(field, serverHandshake.getFieldValue(field));
-                            }
-                            self.emit(EVENT_RESPONSE_HEADERS, headers);
+            }
 
-                            self.onOpen();
-                        }
-                    });
-                }
-                @Override
-                public void onClose(int i, String s, boolean b) {
-                    EventThread.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            self.onClose();
-                        }
-                    });
-                }
-                @Override
-                public void onMessage(final String s) {
-                    EventThread.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            self.onData(s);
-                        }
-                    });
-                }
-                @Override
-                public void onMessage(final ByteBuffer s) {
-                    EventThread.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            self.onData(s.array());
-                        }
-                    });
-                }
-                @Override
-                public void onError(final Exception e) {
-                    EventThread.exec(new Runnable() {
-                        @Override
-                        public void run() {
-                            self.onError("websocket error", e);
-                        }
-                    });
-                }
-            };
-            this.ws.connect();
+            @Override
+            public void onOpen() {
+                Log.i("socket.io", "open");
+            }
 
-        try {
-            final Socket socket = IO.socket("http://192.168.1.2:8899");
-            final Manager manager = IO.io;
+            @Override
+            public void onError(Exception e) {
+                Log.i("socket.io", "Exception" + e);
+            }
 
-            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+            @Override
+            public void onClose() {
+                Log.i("socket.io", "close");
+            }
+        };
+        client.connect();
+        client.addListener("deviceAttributeChanged",
+            new SocketIOClient.JsonEventListener<JSONObject>() {
                 @Override
-                public void call(Object... args) {
-                    Log.v("socket", "connect: " + Arrays.toString(args));
-                    socket.emit("foo", "hi");
-                    socket.disconnect();
+                public void onEvent(JSONObject o) {
+                    Log.i("dc", o.toString());
                 }
-            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "event: " + Arrays.toString(args));
-                }
-            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket","disconnect");
-                }
-            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "Error: " + Arrays.toString(args));
-                }
-            });
-            Emitter.Listener l = new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.v("socket", "Error: " + args[0].toString()/*Arrays.toString(args)*/);
-                }
-            };
-            manager.on(Manager.EVENT_CONNECT_TIMEOUT, l);
-
-            Log.v("socket", "connecting");
-            socket.connect();
-
-            EventThread.exec(new Runnable() {
-                @Override
-                public void run() {
-                    Transport transport = TransportHelper.getTransport(EngineHelper.getEngine(manager));
-                    Log.v("transport", transport.toString());
-                    transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
-                        @Override
-                        public void call(Object... args) {
-                            Log.v("socket", "headers: " + Arrays.toString(args));
-                        }
-                    });
-                }
-            });
-        }catch (URISyntaxException e) {
-            Log.v("error", e.getMessage());
-        }
+        });
+        //                runOnUiThread(new Runnable() {
+        //                    @Override
+        //                    public void run() {
+        //                        Log.i("Websocket", "Message " + message);
+        //                    }
+        //                });
         InputStream is = getResources().openRawResource(R.raw.devices);
-        String inputStreamString = new Scanner(is,"UTF-8").useDelimiter("\\A").next();
+        String inputStreamString = new Scanner(is, "UTF-8").useDelimiter("\\A").next();
         JSONTokener tokener = new JSONTokener(inputStreamString);
         List<Device> list;
         try {
@@ -219,7 +115,7 @@ public class MainActivity extends ActionBarActivity
 
             final ListView listview = (ListView) findViewById(R.id.devciesListView);
 
-            final DeviceArrayAdapter adapter = new DeviceArrayAdapter (this, list);
+            final DeviceArrayAdapter adapter = new DeviceArrayAdapter(this, list);
             listview.setAdapter(adapter);
 
             listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -232,12 +128,12 @@ public class MainActivity extends ActionBarActivity
 
             });
 
-        }catch(JSONException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-    }
 
+    }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -322,7 +218,7 @@ public class MainActivity extends ActionBarActivity
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
+                                 Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
             //textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
