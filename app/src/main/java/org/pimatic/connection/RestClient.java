@@ -3,6 +3,8 @@ package org.pimatic.connection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -17,6 +19,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -25,6 +29,8 @@ import java.util.ArrayList;
  */
 public class RestClient {
 
+    private final String password;
+    private final String username;
     private ArrayList<NameValuePair> params;
     private ArrayList <NameValuePair> headers;
 
@@ -47,9 +53,11 @@ public class RestClient {
         return responseCode;
     }
 
-    public RestClient(String url)
+    public RestClient(String url, String username, String password)
     {
         this.url = url;
+        this.username = username;
+        this.password = password;
         params = new ArrayList<NameValuePair>();
         headers = new ArrayList<NameValuePair>();
     }
@@ -118,9 +126,13 @@ public class RestClient {
         }
     }
 
-    private void executeRequest(HttpUriRequest request, String url)
-    {
-        HttpClient client = new DefaultHttpClient();
+    private void executeRequest(HttpUriRequest request, String url) throws URISyntaxException {
+        DefaultHttpClient client = new DefaultHttpClient();
+        URI uri = new URI(this.url);
+        client.getCredentialsProvider().setCredentials(
+            new AuthScope(uri.getHost(), uri.getPort(),AuthScope.ANY_SCHEME),
+            new UsernamePasswordCredentials(username, password)
+        );
 
         HttpResponse httpResponse;
 

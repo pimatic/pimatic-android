@@ -17,9 +17,18 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.github.nkzawa.emitter.Emitter;
+
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_17;
+import org.java_websocket.handshake.ServerHandshake;
 import org.pimatic.connection.IO;
+
+import com.github.nkzawa.engineio.client.Transport;
+import com.github.nkzawa.engineio.client.TransportHelper;
+import com.github.nkzawa.socketio.client.EngineHelper;
 import com.github.nkzawa.socketio.client.Manager;
 import com.github.nkzawa.socketio.client.Socket;
+import com.github.nkzawa.thread.EventThread;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,11 +40,16 @@ import org.pimatic.model.Device;
 import org.pimatic.model.DeviceManager;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 
 public class MainActivity extends ActionBarActivity
@@ -66,7 +80,7 @@ public class MainActivity extends ActionBarActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
         Log.v("create", "hi!!!!!!!!!!!!!!");
 
-//        RestClient client = new RestClient("http://admin:admin@192.168.1.78:8899/api/devices");
+//        RestClient client = new RestClient("http://@192.168.1.78:8899/api/devices", "admin", "admin");
 //
 //        try {
 //            client.Execute(RequestMethod.GET);
@@ -75,46 +89,124 @@ public class MainActivity extends ActionBarActivity
 //        }
 //        String response = client.getResponse();
 //        if(response != null) Log.v("response",response);
-//
-//        try {
-//            final Socket socket = IO.socket("http://admin:admin@192.168.1.78:8899");
-//            final Manager manager = IO.io;
-//            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    Log.v("socket", "connect: " + Arrays.toString(args));
-//                    socket.emit("foo", "hi");
-//                    socket.disconnect();
-//                }
-//            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    Log.v("socket", "event: " + Arrays.toString(args));
-//                }
-//            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    Log.v("socket","disconnect");
-//                }
-//            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    Log.v("socket", "Error: " + Arrays.toString(args));
-//                }
-//            });
-//            Emitter.Listener l = new Emitter.Listener() {
-//                @Override
-//                public void call(Object... args) {
-//                    Log.v("socket", "Error: " + Arrays.toString(args));
-//                }
-//            };
-//            manager.on(Manager.EVENT_CONNECT_TIMEOUT, l);
-//
-//            Log.v("socket", "connect");
-//            socket.connect();
-//        }catch (URISyntaxException e) {
-//            Log.v("error", e.getMessage());
-//        }
+
+        Map<String, String> headers = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+        this.emit(EVENT_REQUEST_HEADERS, headers);
+
+        final WebSocket self = this;
+        try {
+            this.ws = new WebSocketClient(new URI(this.uri()), new Draft_17(), headers, 0) {
+                @Override
+                public void onOpen(final ServerHandshake serverHandshake) {
+                    EventThread.exec(new Runnable() {
+                        @Override
+                        public void run() {
+                            Map<String, String> headers = new TreeMap<String, String>(String.CASE_INSENSITIVE_ORDER);
+                            Iterator<String> it = serverHandshake.iterateHttpFields();
+                            while (it.hasNext()) {
+                                String field = it.next();
+                                if (field == null) continue;
+                                headers.put(field, serverHandshake.getFieldValue(field));
+                            }
+                            self.emit(EVENT_RESPONSE_HEADERS, headers);
+
+                            self.onOpen();
+                        }
+                    });
+                }
+                @Override
+                public void onClose(int i, String s, boolean b) {
+                    EventThread.exec(new Runnable() {
+                        @Override
+                        public void run() {
+                            self.onClose();
+                        }
+                    });
+                }
+                @Override
+                public void onMessage(final String s) {
+                    EventThread.exec(new Runnable() {
+                        @Override
+                        public void run() {
+                            self.onData(s);
+                        }
+                    });
+                }
+                @Override
+                public void onMessage(final ByteBuffer s) {
+                    EventThread.exec(new Runnable() {
+                        @Override
+                        public void run() {
+                            self.onData(s.array());
+                        }
+                    });
+                }
+                @Override
+                public void onError(final Exception e) {
+                    EventThread.exec(new Runnable() {
+                        @Override
+                        public void run() {
+                            self.onError("websocket error", e);
+                        }
+                    });
+                }
+            };
+            this.ws.connect();
+
+        try {
+            final Socket socket = IO.socket("http://192.168.1.2:8899");
+            final Manager manager = IO.io;
+
+            socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.v("socket", "connect: " + Arrays.toString(args));
+                    socket.emit("foo", "hi");
+                    socket.disconnect();
+                }
+            }).on(Socket.EVENT_MESSAGE, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.v("socket", "event: " + Arrays.toString(args));
+                }
+            }).on(Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.v("socket","disconnect");
+                }
+            }).on(Socket.EVENT_ERROR, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.v("socket", "Error: " + Arrays.toString(args));
+                }
+            });
+            Emitter.Listener l = new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    Log.v("socket", "Error: " + args[0].toString()/*Arrays.toString(args)*/);
+                }
+            };
+            manager.on(Manager.EVENT_CONNECT_TIMEOUT, l);
+
+            Log.v("socket", "connecting");
+            socket.connect();
+
+            EventThread.exec(new Runnable() {
+                @Override
+                public void run() {
+                    Transport transport = TransportHelper.getTransport(EngineHelper.getEngine(manager));
+                    Log.v("transport", transport.toString());
+                    transport.on(Transport.EVENT_REQUEST_HEADERS, new Emitter.Listener() {
+                        @Override
+                        public void call(Object... args) {
+                            Log.v("socket", "headers: " + Arrays.toString(args));
+                        }
+                    });
+                }
+            });
+        }catch (URISyntaxException e) {
+            Log.v("error", e.getMessage());
+        }
         InputStream is = getResources().openRawResource(R.raw.devices);
         String inputStreamString = new Scanner(is,"UTF-8").useDelimiter("\\A").next();
         JSONTokener tokener = new JSONTokener(inputStreamString);
