@@ -251,7 +251,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             });
         }
 
-        private void changeStateTo(boolean state) {
+        private void changeStateTo(final boolean state) {
             HashMap<String, String> params = new HashMap<String, String>();
             String action = (state ? "turnOn" : "turnOff");
             stateSwitch.setEnabled(false);
@@ -265,8 +265,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                                     Toast.makeText(context.getApplicationContext(),
                                             "Done", Toast.LENGTH_SHORT).show();
                                 } else {
+                                    stateSwitch.setChecked(!state);
                                     Toast.makeText(context.getApplicationContext(),
-                                            "Error: " + jsonObject.getString("error"),
+                                            "Error: " + jsonObject.getString("message"),
                                             Toast.LENGTH_LONG).show();
                                 }
                             } catch (JSONException e) {
@@ -278,6 +279,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                         @Override
                         public void onErrorResponse(VolleyError volleyError) {
                             stateSwitch.setEnabled(true);
+                            stateSwitch.setChecked(!state);
                             Toast.makeText(context.getApplicationContext(),
                                     "Error: " + volleyError.getLocalizedMessage(),
                                     Toast.LENGTH_LONG).show();
