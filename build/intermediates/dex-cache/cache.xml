@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/com.tonicartos/superslim/0.4.13/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="8adfd82229a5f0a129469305587557199017219e">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/classes-96d8c363f4bcc0a058f0c879459c6b4d9480230a.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/.gradle/caches/modules-2/files-2.1/com.github.nkzawa/socket.io-client/0.5.0/7d40c590385ba95b34920eb89c986757a79968af/socket.io-client-0.5.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="7d40c590385ba95b34920eb89c986757a79968af">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/socket.io-client-0.5.0-a5b2d3d38dea588470ccf4229f60bfd0726f4221.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="c95ba8152923e4872e86a82cfcba9a51c0214328">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/classes-9bd6a2c61be8755f9e2951456fe72b074d1e76c2.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/com.mcxiaoke.volley/library/1.0.15/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="58e990242aabb94ee8a5e2cf5d87144feba16b98">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/classes-45b9709edf0e553717854199d102f44a60deeb8c.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/.gradle/caches/modules-2/files-2.1/com.github.nkzawa/engine.io-client/0.5.0/72f54ba32a0d735630ebc33a5c39e14a5dd45492/engine.io-client-0.5.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="72f54ba32a0d735630ebc33a5c39e14a5dd45492">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/engine.io-client-0.5.0-525fd379c6639fef5499ab5fdb65eda173b86b75.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp/okhttp-ws/2.3.0/7896d229b6aa7884552ab9c23de54c7eb0de8203/okhttp-ws-2.3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="7896d229b6aa7884552ab9c23de54c7eb0de8203">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/okhttp-ws-2.3.0-ad0cc28ef12d331fd59aeedc973124409f1e5dc6.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/bin/android-studio/sdk/extras/android/m2repository/com/android/support/support-annotations/22.1.1/support-annotations-22.1.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="01d051a6bfb1218b1db2d3a5af0480ac2c25c42a">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/support-annotations-22.1.1-75c978d959f7a9f4d0dace57f9d24c1c2ee72ec2.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="a3ff3c506644c820eb2bdf06e8339f72be578551">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/classes-c83ead0ce8480fc98a9bb29e0f001dd926dc156f.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/org.apmem.tools/layouts/1.9/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="c9bc8e0147ebf3a4e9ed2ab792c054fbf5b64177">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/classes-58ef8d0813ad1cebe7abc867ec36126eaa128dd9.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.1/jars/libs/internal_impl-22.1.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="9e070ad32b2700b0343e8e0cccc437733d91ba3a">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/internal_impl-22.1.1-dc9e6103113b54401271954d97dc6bd7b2474978.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.3.0/1b355f73402020c5a0dcca58affc3ec3dfeabac1/okio-1.3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="1b355f73402020c5a0dcca58affc3ec3dfeabac1">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/okio-1.3.0-687ed8c97773dabaaa3acfe979a7c40ea3352f82.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp/okhttp/2.3.0/2e7bc7033dc2c8423e661224171b3133fb155b28/okhttp-2.3.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="2e7bc7033dc2c8423e661224171b3133fb155b28">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/okhttp-2.3.0-00b5a2b2c02a84669cfc30f10f85a06a8c033a38.jar" />
+    </item>
+    <item
+        jar="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/22.1.1/jars/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="e0b0c35d02308b270015a74cada4887e2e49b889">
+        <dex dex="/home/h3llfire/Projektesammlung/2013_pimatic/pimatic-android-app/app/build/intermediates/pre-dexed/debug/classes-6d41a19e8a5ecc409f8c94bbae57abe87475cb31.jar" />
+    </item>
+
+</items>

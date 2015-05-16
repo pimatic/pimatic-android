@@ -1,32 +1,25 @@
 package org.pimatic.app;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
+import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
-import android.widget.AdapterView;
-import android.widget.ListView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.pimatic.connection.SocketIOClient;
-import org.pimatic.model.Device;
-import org.pimatic.model.DeviceManager;
-
-import java.io.InputStream;
-import java.util.List;
-import java.util.Scanner;
+import org.pimatic.connection.Connection;
+import org.pimatic.connection.SocketClient;
+import org.pimatic.format.Formater;
+import org.pimatic.model.ConnectionOptions;
 
 
 public class MainActivity extends ActionBarActivity
@@ -46,7 +39,6 @@ public class MainActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -55,89 +47,41 @@ public class MainActivity extends ActionBarActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-        Log.v("create", "hi!!!!!!!!!!!!!!");
 
-//        RestClient client = new RestClient("http://@192.168.1.78:8899/api/devices", "admin", "admin");
-//
-//        try {
-//            client.Execute(RequestMethod.GET);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        String response = client.getResponse();
-//        if(response != null) Log.v("response",response);
+        ConnectionOptions cOpts = ConnectionOptions.fromSettings(
+                getResources(),
+                getSharedPreferences(SettingsActivity.PREFERENCE_FILENAME, 0)
+        );
 
-        SocketIOClient client = new SocketIOClient("192.168.1.78", 8899) {
-            @Override
-            public void onMessage(String eventId, Object jsonData) {
-                Log.i("socket.io", "Event: " + eventId + ", data: " + jsonData);
+        Connection.setup(this, cOpts);
+        Connection.connect();
 
-            }
+//        Log.v("Test", Formater.formatValue(1, "B").toString());
+//        Log.v("Test", Formater.formatValue(1100, "B").toString());
+//        Log.v("Test", Formater.formatValue(10001, "B").toString());
+//        Log.v("Test", Formater.formatValue(10000001, "B").toString());
 
-            @Override
-            public void onOpen() {
-                Log.i("socket.io", "open");
-            }
+        // ViewPager and its adapters use support library
+        // fragments, so use getSupportFragmentManager.
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+        DevicePagePagerAdapter devicePageAdapter =
+                new DevicePagePagerAdapter(
+                        getSupportFragmentManager());
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.devie_page_pager);
+        mViewPager.setAdapter(devicePageAdapter);
 
-            @Override
-            public void onError(Exception e) {
-                Log.i("socket.io", "Exception" + e);
-            }
+        tabs.setViewPager(mViewPager);
+    }
 
-            @Override
-            public void onClose() {
-                Log.i("socket.io", "close");
-            }
-        };
-        client.connect();
-        client.addListener("deviceAttributeChanged",
-            new SocketIOClient.JsonEventListener<JSONObject>() {
-                @Override
-                public void onEvent(JSONObject o) {
-                    Log.i("dc", o.toString());
-                }
-        });
-        //                runOnUiThread(new Runnable() {
-        //                    @Override
-        //                    public void run() {
-        //                        Log.i("Websocket", "Message " + message);
-        //                    }
-        //                });
-        InputStream is = getResources().openRawResource(R.raw.devices);
-        String inputStreamString = new Scanner(is, "UTF-8").useDelimiter("\\A").next();
-        JSONTokener tokener = new JSONTokener(inputStreamString);
-        List<Device> list;
-        try {
-            JSONArray devices = new JSONObject(tokener).getJSONArray("devices");
-            DeviceManager.updateFromJson(devices);
-            list = DeviceManager.getDevices();
-            Log.v("json", "devices: " + devices.toString());
-
-            final ListView listview = (ListView) findViewById(R.id.devciesListView);
-
-            final DeviceArrayAdapter adapter = new DeviceArrayAdapter(this, list);
-            listview.setAdapter(adapter);
-
-            listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                @Override
-                public void onItemClick(AdapterView<?> parent, final View view,
-                                        int position, long id) {
-
-                }
-
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Connection.connect();
     }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
+        // bind the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.container, DevicePageFragment.newInstance(position + 1))
@@ -147,13 +91,7 @@ public class MainActivity extends ActionBarActivity
     public void onSectionAttached(int number) {
         switch (number) {
             case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
+                mTitle = getString(R.string.devices);
                 break;
         }
     }
@@ -186,6 +124,8 @@ public class MainActivity extends ActionBarActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -195,11 +135,6 @@ public class MainActivity extends ActionBarActivity
      * A placeholder fragment containing a simple view.
      */
     public static class DevicePageFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -208,7 +143,7 @@ public class MainActivity extends ActionBarActivity
         public static DevicePageFragment newInstance(int sectionNumber) {
             DevicePageFragment fragment = new DevicePageFragment();
             Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+            args.putInt("page_index", sectionNumber);
             fragment.setArguments(args);
             return fragment;
         }
@@ -220,8 +155,6 @@ public class MainActivity extends ActionBarActivity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            //textView.setText(Integer.toString(getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
 
@@ -229,7 +162,7 @@ public class MainActivity extends ActionBarActivity
         public void onAttach(Activity activity) {
             super.onAttach(activity);
             ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+                    getArguments().getInt("page_index"));
         }
     }
 

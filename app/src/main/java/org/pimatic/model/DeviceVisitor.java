@@ -7,5 +7,5 @@ public interface DeviceVisitor<T> {
 
     T visitDevice(Device d);
     T visitSwitchDevice(SwitchDevice d);
-
+    T visitButtonsDevice(ButtonsDevice buttonsDevice);
 }

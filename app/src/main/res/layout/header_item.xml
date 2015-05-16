@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    android:id="@+id/header_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="start"
+    android:padding="8dip"
+    android:layoutDirection="locale"
+    android:textDirection="locale"
+    android:textSize="14sp"
+    app:slm_headerDisplay="inline"
+    app:slm_isHeader="true"
+    app:slm_section_sectionManager="grid"
+    app:slm_grid_columnWidth="96dip"
+    tools:text="Header Item"
+    android:textColor="@color/main_color"
+    android:textStyle="bold"
+    android:background="@drawable/textlines" />

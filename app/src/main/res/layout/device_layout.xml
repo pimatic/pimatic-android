@@ -1,37 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:orientation="vertical"
+    style="?android:listSeparatorTextViewStyle"
+    >
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="false">
+        android:orientation="horizontal"
+        android:id="@+id/nameLayout"
+        >
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Device Name"
-            android:padding="10dp"
-            android:id="@+id/deviceName" />
+            android:id="@+id/deviceName"
+            android:gravity="left"
+            />
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="false"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentRight="true"
-            android:padding="10dp"
-            android:gravity="right"
-            android:id="@+id/attributesLayout" >
-        </LinearLayout>
 
     </LinearLayout>
-</RelativeLayout>
+
+    <org.apmem.tools.layouts.FlowLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:f="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/attributesLayout"
+        android:orientation="horizontal"
+        android:layout_gravity="right"
+        f:weightDefault="1.0"
+        f:layoutDirection="rtl"
+        android:gravity="right">
+    </org.apmem.tools.layouts.FlowLayout>
+
+</LinearLayout>
