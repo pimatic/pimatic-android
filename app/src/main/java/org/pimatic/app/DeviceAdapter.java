@@ -283,8 +283,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                                     Toast.LENGTH_LONG).show();
                         }
                     });
-
-
         }
 
         public void bind(SwitchDevice d) {
@@ -324,12 +322,50 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
         public void bind(ButtonsDevice d) {
             super.bind(d);
-            for (ButtonsDevice.Button button : d.getButtons()) {
+            List<ButtonsDevice.Button> buttons = d.getButtons();
+            for (int i = buttons.size() -1; i >= 0 ; i--) {
+                final ButtonsDevice.Button button = buttons.get(i);
                 Button buttonW = (Button) context.getLayoutInflater().inflate(R.layout.buttons_device_button, attrsLayout, false);
                 buttonW.setText(button.text);
                 buttonW.setTag(button.id);
+                buttonW.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        ButtonsDeviceHolder.this.buttonPressed(button);
+                    }
+                });
                 attrsLayout.addView(buttonW);
             }
+        }
+
+        private void buttonPressed(ButtonsDevice.Button button) {
+            HashMap<String, String> params = new HashMap<String, String>();
+            params.put("buttonId", button.id);
+            Connection.getRest().callDeviceAction(device, "buttonPressed", params,
+                    new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject jsonObject) {
+                            try {
+                                if (jsonObject.getBoolean("success")) {
+                                    Toast.makeText(context.getApplicationContext(),
+                                            "Done", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(context.getApplicationContext(),
+                                            "Error: " + jsonObject.getString("error"),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            Toast.makeText(context.getApplicationContext(),
+                                    "Error: " + volleyError.getLocalizedMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
         }
 
         @Override

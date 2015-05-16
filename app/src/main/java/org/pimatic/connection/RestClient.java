@@ -14,6 +14,16 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.json.JSONObject;
 import org.pimatic.app.MainActivity;
 import org.pimatic.model.ConnectionOptions;
@@ -61,7 +71,8 @@ public class RestClient {
                                            final Map<String, String> params,
                                            final Response.Listener<JSONObject> onResponse,
                                            final Response.ErrorListener onError) {
-        String fullUrl = baseUrl  + url;
+        String queryString = UrlQueryString.buildQueryString(params);
+        String fullUrl = baseUrl  + url + (queryString.length() > 0 ? "?" + queryString : "");
         JsonObjectRequest request = new JsonObjectRequest(method, fullUrl, onResponse, onError) {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
@@ -70,6 +81,7 @@ public class RestClient {
 
             @Override
             public Map<String, String> getParams() {
+                Log.v("getParams", params.toString());
                 return params;
             }
 
@@ -109,4 +121,37 @@ public class RestClient {
         queue.add(request);
         return request;
     }
+}
+
+class UrlQueryString {
+    private static final String DEFAULT_ENCODING = "UTF-8";
+
+    public static String buildQueryString(final Map<String, String> map) {
+        try {
+            final Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
+            final StringBuilder sb = new StringBuilder(map.size() * 8);
+            while (it.hasNext()) {
+                final Map.Entry<String, String> entry = it.next();
+                final String key = entry.getKey();
+                if (key != null) {
+                    sb.append(URLEncoder.encode(key, DEFAULT_ENCODING));
+                    sb.append("=");
+                    final String value = entry.getValue();
+                    final String valueAsString = value != null ? URLEncoder.encode(value, DEFAULT_ENCODING) : "";
+                    sb.append(valueAsString);
+                    if (it.hasNext()) {
+                        sb.append("&");
+                    }
+                } else {
+                    // Do what you want...for example:
+                    Log.e("RestClient", String.format("Null key in query map: %s", map.entrySet()));
+                }
+            }
+            return sb.toString();
+        } catch (final UnsupportedEncodingException e) {
+            throw new UnsupportedOperationException(e);
+        }
+    }
+
+
 }
