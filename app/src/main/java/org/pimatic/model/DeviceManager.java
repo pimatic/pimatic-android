@@ -44,6 +44,8 @@ public class DeviceManager {
                 return new SwitchDevice(obj);
             case "buttons":
                 return new ButtonsDevice(obj);
+            case "thermostat":
+                return new ThermostatDevice(obj);
             default:
                 return new Device(obj);
         }

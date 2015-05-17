@@ -15,9 +15,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -38,6 +40,7 @@ import org.pimatic.model.DeviceVisitor;
 import org.pimatic.model.Group;
 import org.pimatic.model.GroupManager;
 import org.pimatic.model.SwitchDevice;
+import org.pimatic.model.ThermostatDevice;
 
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
@@ -47,7 +50,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     private ViewTypeVisiter typeResolver;
 
     private enum ViewTypes {
-        SWITCH, BUTTONS, DEVICE, HEADER
+        SWITCH, BUTTONS, DEVICE, THERMOSTAT, HEADER
     }
     private ViewTypes[] intToType = ViewTypes.values();
 
@@ -370,8 +373,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                     });
         }
 
+
+
         @Override
         protected void bindAttribute(ButtonsDevice d, Device.Attribute attr) {
+            // crete no views for attributes
             return;
         }
 
@@ -381,6 +387,94 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
     }
 
+    private class ThermostatDeviceHolder extends DeviceViewHolder<ThermostatDevice> {
+        protected LinearLayout controls;
+        protected TextView setpointTV;
+        protected Button plusButton;
+        protected Button minusButton;
+        protected ToggleButton presetComfy;
+        protected ToggleButton presetEco;
+        protected Spinner mode;
+
+        protected ThermostatDeviceHolder(ViewGroup parent) {
+            super(parent, R.layout.device_layout);
+        }
+
+
+        public void bind(final ThermostatDevice d) {
+
+            controls = (LinearLayout) context.getLayoutInflater().inflate(R.layout.thermostat_device_controls, attrsLayout, false);
+
+            setpointTV = (TextView) controls.findViewById(R.id.settemperature);
+            plusButton = (Button) controls.findViewById(R.id.settemperature_plus);
+            minusButton = (Button) controls.findViewById(R.id.settemperature_minus);
+            presetComfy = (ToggleButton) controls.findViewById(R.id.preset_comfy);
+            presetEco = (ToggleButton) controls.findViewById(R.id.preset_eco);
+            mode = (Spinner) controls.findViewById(R.id.mode);
+
+            plusButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    double value = Double.parseDouble(setpointTV.getText().toString()) + 0.5;
+                    setpointTV.setText("" + value);
+                    temperatureSetpointChanged(value);
+                }
+            });
+            minusButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    double value = Double.parseDouble(setpointTV.getText().toString()) - 0.5;
+                    if (value > 0) {
+                        setpointTV.setText("" + value);
+                        temperatureSetpointChanged(value);
+                    }
+                }
+            });
+
+            super.bind(d);
+            attrsLayout.addView(controls);
+            controls.requestLayout();
+        }
+
+        @Override
+        protected void bindAttribute(ThermostatDevice d, Device.Attribute attr) {
+            attributeValueChanged(d, attr);
+        }
+
+        public void temperatureSetpointChanged(double value) {
+
+        }
+
+
+        @Override
+        public void attributeValueChanged(Device d, Device.Attribute attr) {
+            ThermostatDevice td = (ThermostatDevice)d;
+            switch (attr.getName()) {
+                case "temperatureSetpoint":
+                    TextView setpointTV = (TextView) controls.findViewById(R.id.settemperature);
+                    setpointTV.setText("" + td.getTemperatureSetpoint());
+                case "mode":
+                    String mode = td.getMode();
+                    switch (mode) {
+                        case "comfy":
+                            presetComfy.setChecked(true);
+                            presetEco.setChecked(false);
+                            break;
+                        case "eco":
+                            presetEco.setChecked(true);
+                            presetComfy.setChecked(false);
+                            break;
+                    }
+
+            }
+        }
+
+
+        @Override
+        public ViewTypes getViewType() {
+            return ViewTypes.BUTTONS;
+        }
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -392,6 +486,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                 return new SwitchDeviceHolder(parent);
             case BUTTONS:
                 return new ButtonsDeviceHolder(parent);
+            case THERMOSTAT:
+                return new ThermostatDeviceHolder(parent);
             case DEVICE:
                 //fallthtough
             default:
@@ -542,9 +638,15 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             return ViewTypes.SWITCH;
         }
 
+
         @Override
         public ViewTypes visitButtonsDevice(ButtonsDevice buttonsDevice) {
             return ViewTypes.BUTTONS;
+        }
+
+        @Override
+        public ViewTypes visitThermostatDevice(ThermostatDevice thermostatDevice) {
+            return ViewTypes.THERMOSTAT;
         }
     }
 
