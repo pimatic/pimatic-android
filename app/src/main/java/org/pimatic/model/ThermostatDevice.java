@@ -24,6 +24,15 @@ public class ThermostatDevice extends Device {
         return ((NumberAttribute)getAttribute("temperatureSetpoint")).getValue();
     }
 
+    public double getPresetTemp(String type) {
+        try {
+            return getConfig().getDouble(type + "Temp");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return Double.NaN;
+    }
+
 
     public <T> T visit(DeviceVisitor<T> v) {
         return v.visitThermostatDevice(this);

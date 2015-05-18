@@ -9,11 +9,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -31,6 +34,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.pimatic.connection.Connection;
 import org.pimatic.format.Formater;
+import org.pimatic.helpers.Debouncer;
 import org.pimatic.model.ButtonsDevice;
 import org.pimatic.model.Device;
 import org.pimatic.model.DeviceManager;
@@ -389,12 +393,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
     private class ThermostatDeviceHolder extends DeviceViewHolder<ThermostatDevice> {
         protected LinearLayout controls;
-        protected TextView setpointTV;
+        protected EditText setpointET;
         protected Button plusButton;
         protected Button minusButton;
         protected ToggleButton presetComfy;
         protected ToggleButton presetEco;
         protected Spinner mode;
+        protected Debouncer<Double> callSetTemperatureAction;
 
         protected ThermostatDeviceHolder(ViewGroup parent) {
             super(parent, R.layout.device_layout);
@@ -405,7 +410,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
             controls = (LinearLayout) context.getLayoutInflater().inflate(R.layout.thermostat_device_controls, attrsLayout, false);
 
-            setpointTV = (TextView) controls.findViewById(R.id.settemperature);
+            setpointET = (EditText) controls.findViewById(R.id.settemperature);
             plusButton = (Button) controls.findViewById(R.id.settemperature_plus);
             minusButton = (Button) controls.findViewById(R.id.settemperature_minus);
             presetComfy = (ToggleButton) controls.findViewById(R.id.preset_comfy);
@@ -415,21 +420,86 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             plusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    double value = Double.parseDouble(setpointTV.getText().toString()) + 0.5;
-                    setpointTV.setText("" + value);
-                    temperatureSetpointChanged(value);
+                    double value = Double.parseDouble(setpointET.getText().toString()) + 0.5;
+                    setpointET.setText("" + value);
+                    callSetTemperatureAction.call(value);
                 }
             });
+
             minusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    double value = Double.parseDouble(setpointTV.getText().toString()) - 0.5;
+                    double value = Double.parseDouble(setpointET.getText().toString()) - 0.5;
                     if (value > 0) {
-                        setpointTV.setText("" + value);
-                        temperatureSetpointChanged(value);
+                        setpointET.setText("" + value);
+                        callSetTemperatureAction.call(value);
                     }
                 }
             });
+
+            presetComfy.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    double value = device.getPresetTemp("comfy");
+                    callSetTemperatureAction.callImmediate(value);
+                }
+            });
+
+            presetEco.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    double value = device.getPresetTemp("eco");
+                    callSetTemperatureAction.callImmediate(value);
+                }
+            });
+
+            setpointET.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) { }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    double value = Double.parseDouble(s.toString());
+                    callSetTemperatureAction.call(value);
+                }
+            });
+
+            callSetTemperatureAction = new Debouncer<Double>(new Debouncer.Function<Double>() {
+                @Override
+                public void call(Double setpoint) {
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("temperatureSetpoint", setpoint.toString());
+                    Connection.getRest().callDeviceAction(device, "changeTemperatureTo", params,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject jsonObject) {
+                                    try {
+                                        if (jsonObject.getBoolean("success")) {
+                                            Toast.makeText(context.getApplicationContext(),
+                                                    "Done", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(context.getApplicationContext(),
+                                                    "Error: " + jsonObject.getString("message"),
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    Toast.makeText(context.getApplicationContext(),
+                                            "Error: " + volleyError.getLocalizedMessage(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                }
+            }, 1000);
 
             super.bind(d);
             attrsLayout.addView(controls);
@@ -439,10 +509,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         @Override
         protected void bindAttribute(ThermostatDevice d, Device.Attribute attr) {
             attributeValueChanged(d, attr);
-        }
-
-        public void temperatureSetpointChanged(double value) {
-
         }
 
 

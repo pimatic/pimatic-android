@@ -18,4 +18,9 @@
         <item>http</item>
         <item>https</item>
     </string-array>
+
+    <string-array name="thermostat_modes">
+        <item>auto</item>
+        <item>manual</item>
+    </string-array>
 </resources>
