@@ -13,9 +13,32 @@
     <string name="default_username">demo</string>
     <string name="default_password">demo</string>
 
-
     <string-array name="protocols_names">
         <item>http</item>
         <item>https</item>
     </string-array>
+
+    <string-array name="navigation_drawer_groups">
+        <item>Pages</item>
+        <item>Automation</item>
+        <item>Log</item>
+        <item>Settings</item>
+    </string-array>
+
+    <string-array name="navigation_drawer_group_Pages">
+    </string-array>
+
+    <string-array name="navigation_drawer_group_Automation">
+        <item>Rules</item>
+        <item>Variables</item>
+    </string-array>
+
+    <string-array name="navigation_drawer_group_Log">
+        <item>Messages</item>
+        <item>Events</item>
+    </string-array>
+
+    <string-array name="navigation_drawer_group_Settings">
+    </string-array>
+
 </resources>
