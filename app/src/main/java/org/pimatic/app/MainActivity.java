@@ -56,21 +56,16 @@ public class MainActivity extends ActionBarActivity
         Connection.setup(this, cOpts);
         Connection.connect();
 
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.container,
+                        new DevicePagesFragment()).commit();
+
+
 //        Log.v("Test", Formater.formatValue(1, "B").toString());
 //        Log.v("Test", Formater.formatValue(1100, "B").toString());
 //        Log.v("Test", Formater.formatValue(10001, "B").toString());
 //        Log.v("Test", Formater.formatValue(10000001, "B").toString());
 
-        // ViewPager and its adapters use support library
-        // fragments, so use getSupportFragmentManager.
-        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-        DevicePagePagerAdapter devicePageAdapter =
-                new DevicePagePagerAdapter(
-                        getSupportFragmentManager());
-        ViewPager mViewPager = (ViewPager) findViewById(R.id.devie_page_pager);
-        mViewPager.setAdapter(devicePageAdapter);
-
-        tabs.setViewPager(mViewPager);
     }
 
     @Override
