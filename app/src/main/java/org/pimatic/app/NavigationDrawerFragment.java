@@ -104,7 +104,7 @@ public class NavigationDrawerFragment extends Fragment {
                                      int groupPosition, int childPosition, long id) {
                 if(groupPosition == 0)
                 {
-                    parent.setItemChecked(parent.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition)), true);
+                    setItemChecked(groupPosition, childPosition);
                     mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
                 }
                 return false;
@@ -134,6 +134,11 @@ public class NavigationDrawerFragment extends Fragment {
         mDrawerListView.setGroupIndicator(null);
 
         return mDrawerListView;
+    }
+
+    public void setItemChecked(int groupPosition, int childPosition)
+    {
+        mDrawerListView.setItemChecked(mDrawerListView.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition)), true);
     }
 
     public boolean isDrawerOpen() {

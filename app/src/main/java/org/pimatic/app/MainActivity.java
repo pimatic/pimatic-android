@@ -65,6 +65,7 @@ public class MainActivity extends ActionBarActivity
             activeGroupPosition = savedInstanceState.getInt("activeGroupPosition");
             activeChildPosition = savedInstanceState.getInt("activeChildPosition");
             onNavigationDrawerItemSelected(activeGroupPosition, activeChildPosition);
+            mNavigationDrawerFragment.setItemChecked(activeGroupPosition,activeChildPosition);
         }
         else {
             activeGroupPosition = 0;
@@ -74,6 +75,7 @@ public class MainActivity extends ActionBarActivity
                     .add(R.id.container,
                             mDevicePagesFragment, "PAGES").commit();
             activeMainFragmentTag = "PAGES";
+            mNavigationDrawerFragment.setItemChecked(activeGroupPosition,activeChildPosition);
         }
 //        Log.v("Test", Formater.formatValue(1, "B").toString());
 //        Log.v("Test", Formater.formatValue(1100, "B").toString());
@@ -109,6 +111,7 @@ public class MainActivity extends ActionBarActivity
     public void onPageSelected(int position) {
         activeGroupPosition = 0;
         activeChildPosition = position;
+        mNavigationDrawerFragment.setItemChecked(activeGroupPosition, activeChildPosition);
     }
 
     @Override
