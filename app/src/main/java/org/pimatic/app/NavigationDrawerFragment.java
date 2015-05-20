@@ -104,14 +104,34 @@ public class NavigationDrawerFragment extends Fragment {
                                      int groupPosition, int childPosition, long id) {
                 if(groupPosition == 0)
                 {
+                    parent.setItemChecked(parent.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition)), true);
                     mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);
                 }
                 return false;
             }
         });
 
-        mDrawerListView.setAdapter(new NavigationDrawerAdapter(getActivity()));
+        NavigationDrawerAdapter mNavigationDrawerAdapter = new NavigationDrawerAdapter(getActivity());
+        mDrawerListView.setAdapter(mNavigationDrawerAdapter);
                 mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
+        //Expand all groups
+        for(int i=0; i < mNavigationDrawerAdapter.getGroupCount(); i++)
+        {
+            mDrawerListView.expandGroup(i);
+        }
+
+        //Disable collapsing of groups by don't do anything onGroupClick
+        mDrawerListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+                // Doing nothing
+                return true;
+            }
+        });
+
+        //Disable group indicator
+        mDrawerListView.setGroupIndicator(null);
 
         return mDrawerListView;
     }
