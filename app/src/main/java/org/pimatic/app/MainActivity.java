@@ -23,12 +23,16 @@ import org.pimatic.model.ConnectionOptions;
 
 
 public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, DevicePagesFragment.DevicePagesFragmentCallbacks {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
+    private DevicePagesFragment mDevicePagesFragment;
+    private String activeMainFragmentTag;
+    private int activeGroupPosition;
+    private int activeChildPosition;
 
     /**
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
@@ -38,6 +42,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -56,11 +61,20 @@ public class MainActivity extends ActionBarActivity
         Connection.setup(this, cOpts);
         Connection.connect();
 
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.container,
-                        new DevicePagesFragment()).commit();
-
-
+        if (savedInstanceState != null) {
+            activeGroupPosition = savedInstanceState.getInt("activeGroupPosition");
+            activeChildPosition = savedInstanceState.getInt("activeChildPosition");
+            onNavigationDrawerItemSelected(activeGroupPosition, activeChildPosition);
+        }
+        else {
+            activeGroupPosition = 0;
+            activeChildPosition = 0;
+            mDevicePagesFragment = new DevicePagesFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container,
+                            mDevicePagesFragment, "PAGES").commit();
+            activeMainFragmentTag = "PAGES";
+        }
 //        Log.v("Test", Formater.formatValue(1, "B").toString());
 //        Log.v("Test", Formater.formatValue(1100, "B").toString());
 //        Log.v("Test", Formater.formatValue(10001, "B").toString());
@@ -75,12 +89,35 @@ public class MainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onNavigationDrawerItemSelected(int position) {
+    public void onNavigationDrawerItemSelected(int groupPosition, int childPosition) {
         // bind the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, DevicePageFragment.newInstance(position + 1))
-                .commit();
+        activeGroupPosition = groupPosition;
+        activeChildPosition = childPosition;
+        if(groupPosition == 0)
+        {
+            mDevicePagesFragment = new DevicePagesFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container,
+                            mDevicePagesFragment, "PAGES").commit();
+            mDevicePagesFragment.setPage(childPosition);
+            activeMainFragmentTag = "PAGES";
+        }
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        activeGroupPosition = 0;
+        activeChildPosition = position;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("activeGroupPosition", activeGroupPosition);
+        outState.putInt("activeChildPosition", activeChildPosition);
+//        getSupportFragmentManager().putFragment(outState, "mSavedState", getSupportFragmentManager().findFragmentByTag(activeMainFragmentTag));
+
     }
 
     public void onSectionAttached(int number) {
@@ -125,6 +162,8 @@ public class MainActivity extends ActionBarActivity
         }
         return super.onOptionsItemSelected(item);
     }
+
+
 
     /**
      * A placeholder fragment containing a simple view.
