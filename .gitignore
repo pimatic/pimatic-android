@@ -10,6 +10,7 @@ build/
 
 # Files for the Dalvik VM
 *.dex
+build\intermediates\dex-cache
 
 # Generated files
 bin/
