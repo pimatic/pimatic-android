@@ -92,7 +92,7 @@ public class NavigationDrawerFragment extends Fragment {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v,
                                      int groupPosition, int childPosition, long id) {
-                if(groupPosition == 0)
+                if(groupPosition == 0 || groupPosition == 3)
                 {
                     setItemChecked(groupPosition, childPosition);
                     mCallbacks.onNavigationDrawerItemSelected(groupPosition, childPosition);

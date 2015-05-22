@@ -22,7 +22,6 @@ import org.pimatic.model.DevicePageManager;
 public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
     public DevicePagePagerAdapter(final FragmentManager fm) {
         super(fm);
-
         DevicePageManager.onChange(new DevicePageManager.UpdateListener() {
             @Override
             public void onChange() {

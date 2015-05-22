@@ -4,13 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,8 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.pimatic.connection.Connection;
-import org.pimatic.connection.SocketClient;
-import org.pimatic.format.Formater;
 import org.pimatic.model.ConnectionOptions;
 
 
@@ -56,7 +50,7 @@ public class MainActivity extends AppCompatActivity
 
         ConnectionOptions cOpts = ConnectionOptions.fromSettings(
                 getResources(),
-                getSharedPreferences(SettingsActivity.PREFERENCE_FILENAME, 0)
+                getSharedPreferences(SettingsFragment.PREFERENCE_FILENAME, 0)
         );
 
         Connection.setup(this, cOpts);
@@ -104,6 +98,17 @@ public class MainActivity extends AppCompatActivity
                             mDevicePagesFragment, "PAGES").commit();
             mDevicePagesFragment.setPage(childPosition);
             activeMainFragmentTag = "PAGES";
+        }
+        else if (groupPosition == 3)
+        {
+            if(childPosition == 0)
+            {
+                //mDevicePagesFragment = new DevicePagesFragment();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container,
+                                new SettingsFragment(), "SETTINGS").commit();
+                activeMainFragmentTag = "SETTINGS";
+            }
         }
 
     }
@@ -159,11 +164,13 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        /*
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            Intent intent = new Intent(MainActivity.this, SettingsFragment.class);
             startActivity(intent);
             return true;
         }
+        */
         return super.onOptionsItemSelected(item);
     }
 
