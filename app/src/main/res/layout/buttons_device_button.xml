@@ -6,4 +6,4 @@
         android:layout_height="wrap_content"
         android:text="Button"
         android:id="@+id/button"
-    android:textSize="10dp" />
+        android:textSize="10dp" />

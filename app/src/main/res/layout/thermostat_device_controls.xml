@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/mode"
+        android:layout_weight="1"
+        android:entries="@array/thermostat_modes"
+         />
+
+    <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:text="eco"
+        android:textOff="eco"
+        android:textOn="eco"
+        android:id="@+id/preset_eco"
+         />
+
+    <ToggleButton
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:text="comfy"
+        android:textOff="comfy"
+        android:textOn="comfy"
+        android:id="@+id/preset_comfy"
+         />
+
+    <Button
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="42dp"
+        android:layout_height="wrap_content"
+        android:text="-"
+        android:textAlignment="center"
+        android:id="@+id/settemperature_minus"
+        android:padding="0dp" />
+
+    <EditText
+        android:layout_width="42dp"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:ems="10"
+        android:textAlignment="center"
+        android:id="@+id/settemperature"
+        android:text="0" />
+
+    <Button
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="42dp"
+        android:layout_height="wrap_content"
+        android:text="+"
+        android:textAlignment="center"
+        android:id="@+id/settemperature_plus" />
+</LinearLayout>
