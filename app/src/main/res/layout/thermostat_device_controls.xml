@@ -6,11 +6,10 @@
 
     <Spinner
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/mode"
+        android:layout_height="match_parent"
+        android:id="@+id/thermostat_device_mode"
         android:layout_weight="1"
-        android:entries="@array/thermostat_modes"
-         />
+        android:spinnerMode="dialog" />
 
     <ToggleButton
         style="?android:attr/borderlessButtonStyle"
@@ -19,7 +18,7 @@
         android:text="eco"
         android:textOff="eco"
         android:textOn="eco"
-        android:id="@+id/preset_eco"
+        android:id="@+id/thermostat_device_preset_eco"
          />
 
     <ToggleButton
@@ -29,7 +28,7 @@
         android:text="comfy"
         android:textOff="comfy"
         android:textOn="comfy"
-        android:id="@+id/preset_comfy"
+        android:id="@+id/thermostat_device_preset_comfy"
          />
 
     <Button
@@ -38,7 +37,7 @@
         android:layout_height="wrap_content"
         android:text="-"
         android:textAlignment="center"
-        android:id="@+id/settemperature_minus"
+        android:id="@+id/thermostat_device_settemperature_minus"
         android:padding="0dp" />
 
     <EditText
@@ -47,7 +46,7 @@
         android:inputType="numberDecimal"
         android:ems="10"
         android:textAlignment="center"
-        android:id="@+id/settemperature"
+        android:id="@+id/thermostat_device_settemperature"
         android:text="0" />
 
     <Button
@@ -56,5 +55,5 @@
         android:layout_height="wrap_content"
         android:text="+"
         android:textAlignment="center"
-        android:id="@+id/settemperature_plus" />
+        android:id="@+id/thermostat_device_settemperature_plus" />
 </LinearLayout>

@@ -2,6 +2,7 @@ package org.pimatic.app;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -400,6 +403,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         protected ToggleButton presetEco;
         protected Spinner mode;
         protected Debouncer<Double> callSetTemperatureAction;
+        protected String[] modes = new String[]{"manu", "auto", "boost"};
 
         protected ThermostatDeviceHolder(ViewGroup parent) {
             super(parent, R.layout.device_layout);
@@ -410,12 +414,12 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
             controls = (LinearLayout) context.getLayoutInflater().inflate(R.layout.thermostat_device_controls, attrsLayout, false);
 
-            setpointET = (EditText) controls.findViewById(R.id.settemperature);
-            plusButton = (Button) controls.findViewById(R.id.settemperature_plus);
-            minusButton = (Button) controls.findViewById(R.id.settemperature_minus);
-            presetComfy = (ToggleButton) controls.findViewById(R.id.preset_comfy);
-            presetEco = (ToggleButton) controls.findViewById(R.id.preset_eco);
-            mode = (Spinner) controls.findViewById(R.id.mode);
+            setpointET = (EditText) controls.findViewById(R.id.thermostat_device_settemperature);
+            plusButton = (Button) controls.findViewById(R.id.thermostat_device_settemperature_plus);
+            minusButton = (Button) controls.findViewById(R.id.thermostat_device_settemperature_minus);
+            presetComfy = (ToggleButton) controls.findViewById(R.id.thermostat_device_preset_comfy);
+            presetEco = (ToggleButton) controls.findViewById(R.id.thermostat_device_preset_eco);
+            mode = (Spinner) controls.findViewById(R.id.thermostat_device_mode);
 
             plusButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -445,7 +449,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                 }
             });
 
-            presetEco.setOnClickListener(new View.OnClickListener(){
+            presetEco.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     double value = device.getPresetTemp("eco");
@@ -455,15 +459,64 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
             setpointET.addTextChangedListener(new TextWatcher() {
                 @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
 
                 @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) { }
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
 
                 @Override
                 public void afterTextChanged(Editable s) {
                     double value = Double.parseDouble(s.toString());
                     callSetTemperatureAction.call(value);
+                }
+            });
+
+            ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(mode.getContext(), android.R.layout.simple_spinner_item, modes);
+            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mode.setAdapter(spinnerArrayAdapter);
+            mode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    String mode = ThermostatDeviceHolder.this.mode.getSelectedItem().toString();
+                    Log.v("DeviceAdapter", "mode changed to: " + mode + " " + position);
+                    if (mode.equals(device.getMode())) {
+                        return;
+                    }
+                    HashMap<String, String> params = new HashMap<String, String>();
+                    params.put("mode", mode);
+                    Connection.getRest().callDeviceAction(device, "changeModeTo", params,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject jsonObject) {
+                                    try {
+                                        if (jsonObject.getBoolean("success")) {
+                                            Toast.makeText(context.getApplicationContext(),
+                                                    "Done", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(context.getApplicationContext(),
+                                                    "Error: " + jsonObject.getString("error"),
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError volleyError) {
+                                    Toast.makeText(context.getApplicationContext(),
+                                            "Error: " + volleyError.getLocalizedMessage(),
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            });
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                    Log.v("DeviceAdapter","Nothing selected");
                 }
             });
 
@@ -517,21 +570,26 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             ThermostatDevice td = (ThermostatDevice)d;
             switch (attr.getName()) {
                 case "temperatureSetpoint":
-                    TextView setpointTV = (TextView) controls.findViewById(R.id.settemperature);
-                    setpointTV.setText("" + td.getTemperatureSetpoint());
+                    setpointET.setText("" + td.getTemperatureSetpoint());
+                    break;
+//                case "mode":
+//                    String mode = td.getMode();
+//                    switch (mode) {
+//                        case "comfy":
+//                            presetComfy.setChecked(true);
+//                            presetEco.setChecked(false);
+//                            break;
+//                        case "eco":
+//                            presetEco.setChecked(true);
+//                            presetComfy.setChecked(false);
+//                            break;
+//                    }
                 case "mode":
                     String mode = td.getMode();
-                    switch (mode) {
-                        case "comfy":
-                            presetComfy.setChecked(true);
-                            presetEco.setChecked(false);
-                            break;
-                        case "eco":
-                            presetEco.setChecked(true);
-                            presetComfy.setChecked(false);
-                            break;
-                    }
-
+                    int index = Arrays.asList(modes).indexOf(mode);
+                    Log.v("DeviceAdapter", "Change " + mode + " " + index);
+                    this.mode.setSelection(index, true);
+                    break;
             }
         }
 
