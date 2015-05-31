@@ -7,14 +7,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by h3llfire on 21.06.14.
  */
 public class DeviceManager {
 
-    private static ArrayList<UpdateListener> listeners = new ArrayList<>();
-    private static ArrayList<Device> devices = new ArrayList<Device>();
+    private static List<UpdateListener> listeners = new ArrayList<>();
+    private static List<Device> devices = new ArrayList<Device>();
 
     public static void updateFromJson(JSONArray deviceArray) throws JSONException {
         devices.clear();
@@ -128,15 +129,22 @@ public class DeviceManager {
         }
     }
 
-    public static ArrayList<Device> getDevices() {
+    public static List<Device> getDevices() {
         return devices;
+    }
+
+    public static void setDevices(List<Device> devices) {
+        DeviceManager.devices = devices;
+        didChange();
     }
 
     public static void onChange(UpdateListener l) {
         listeners.add(l);
     }
 
-
+    public static void removeListener(UpdateListener listener) {
+        listeners.remove(listener);
+    }
 
     public static abstract class UpdateListener {
         public abstract void onChange();

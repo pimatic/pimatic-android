@@ -15,11 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
 import org.pimatic.connection.Connection;
-import org.pimatic.connection.SocketClient;
-import org.pimatic.format.Formater;
+import org.pimatic.model.AccountManager;
 import org.pimatic.model.ConnectionOptions;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends ActionBarActivity
@@ -34,6 +37,7 @@ public class MainActivity extends ActionBarActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private DevicePagePagerAdapter devicePageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +52,19 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        ConnectionOptions cOpts = ConnectionOptions.fromSettings(
-                getResources(),
-                getSharedPreferences(SettingsActivity.PREFERENCE_FILENAME, 0)
-        );
 
-        Connection.setup(this, cOpts);
-        Connection.connect();
+        final AccountManager accountManager = new AccountManager(this);
+        final String[] accounts = accountManager.getAllAccountNames();
+        ConnectionCache.init(this, accounts);
+
+        ConnectionOptions conOpts = null;
+        if (accounts.length > 0) {
+            conOpts = accountManager.getConnectionFor(accounts[0]);
+            Connection.setup(this, conOpts);
+            ConnectionCache.loadFromCache(this, conOpts);
+            Connection.connect();
+        }
+
 
 //        Log.v("Test", Formater.formatValue(1, "B").toString());
 //        Log.v("Test", Formater.formatValue(1100, "B").toString());
@@ -64,19 +74,57 @@ public class MainActivity extends ActionBarActivity
         // ViewPager and its adapters use support library
         // fragments, so use getSupportFragmentManager.
         PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-        DevicePagePagerAdapter devicePageAdapter =
-                new DevicePagePagerAdapter(
-                        getSupportFragmentManager());
+        devicePageAdapter = new DevicePagePagerAdapter(getSupportFragmentManager());
         ViewPager mViewPager = (ViewPager) findViewById(R.id.devie_page_pager);
         mViewPager.setAdapter(devicePageAdapter);
 
         tabs.setViewPager(mViewPager);
+
+        ActionBar actionBar = getSupportActionBar();
+        final Spinner accountSelector = (Spinner) getLayoutInflater().inflate(R.layout.accounts_spinner, null, false);
+        AccountAdapter adapter = new AccountAdapter(this, new ArrayList<String>());
+        accountSelector.setAdapter(adapter);
+        accountSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                ConnectionOptions conOpts = accountManager.getConnectionFor(accountSelector.getSelectedItem().toString());
+                if (conOpts == null) {
+                    Log.v("sad", "Error getting connection");
+                    return;
+                }
+                ConnectionCache.saveToCache(MainActivity.this, Connection.getOptions());
+                Connection.switchConnection(MainActivity.this, conOpts);
+                ConnectionCache.loadFromCache(MainActivity.this, conOpts);
+                Connection.connect();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        actionBar.setCustomView(accountSelector);
+        actionBar.setDisplayShowCustomEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        devicePageAdapter.destroy();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Connection.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ConnectionCache.saveToCache(this, Connection.getOptions());
+        Connection.disconnect();
     }
 
     @Override
@@ -98,7 +146,6 @@ public class MainActivity extends ActionBarActivity
 
     public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setTitle(mTitle);
     }
@@ -124,7 +171,7 @@ public class MainActivity extends ActionBarActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            Intent intent = new Intent(MainActivity.this, AccountsActivity.class);
             startActivity(intent);
             return true;
         }
@@ -136,6 +183,9 @@ public class MainActivity extends ActionBarActivity
      */
     public static class DevicePageFragment extends Fragment {
 
+        public DevicePageFragment() {
+        }
+
         /**
          * Returns a new instance of this fragment for the given section
          * number.
@@ -146,9 +196,6 @@ public class MainActivity extends ActionBarActivity
             args.putInt("page_index", sectionNumber);
             fragment.setArguments(args);
             return fragment;
-        }
-
-        public DevicePageFragment() {
         }
 
         @Override

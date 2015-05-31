@@ -1,11 +1,5 @@
 package org.pimatic.app;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -49,26 +43,36 @@ import org.pimatic.model.GroupManager;
 import org.pimatic.model.SwitchDevice;
 import org.pimatic.model.ThermostatDevice;
 
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+
 public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder> {
 
     private final Activity context;
     private int devicePageIndex;
     private ArrayList<Item> items;
     private ViewTypeVisiter typeResolver;
-
-    private enum ViewTypes {
-        SWITCH, BUTTONS, DEVICE, THERMOSTAT, HEADER
-    }
+    private DeviceManager.UpdateListener deviceUpdateListener;
+    private DevicePageManager.UpdateListener devicePageListener;
+    private GroupManager.UpdateListener groupListener;
     private ViewTypes[] intToType = ViewTypes.values();
-
     public DeviceAdapter(final Activity context, int devicePageIndex) {
         this.context = context;
         this.devicePageIndex = devicePageIndex;
         this.items = new ArrayList<>();
         this.typeResolver = new ViewTypeVisiter();
+
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
         updateItemsList();
 
-        DeviceManager.onChange(new DeviceManager.UpdateListener() {
+        DeviceManager.onChange(deviceUpdateListener = new DeviceManager.UpdateListener() {
             @Override
             public void onChange() {
                 updateItemsList();
@@ -92,7 +96,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             }
         });
 
-        DevicePageManager.onChange(new DevicePageManager.UpdateListener() {
+        DevicePageManager.onChange(devicePageListener = new DevicePageManager.UpdateListener() {
             @Override
             public void onChange() {
                 updateItemsList();
@@ -100,13 +104,165 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             }
         });
 
-        GroupManager.onChange(new GroupManager.UpdateListener() {
+        GroupManager.onChange(groupListener = new GroupManager.UpdateListener() {
             @Override
             public void onChange() {
                 updateItemsList();
                 notifyDataSetChanged();
             }
         });
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        DeviceManager.removeListener(deviceUpdateListener);
+        DevicePageManager.removeListener(devicePageListener);
+        GroupManager.removeListener(groupListener);
+    }
+
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        //TODO cashing
+        switch (intToType[viewType]) {
+            case HEADER:
+                return new HeaderViewHolder(parent);
+            case SWITCH:
+                return new SwitchDeviceHolder(parent);
+            case BUTTONS:
+                return new ButtonsDeviceHolder(parent);
+            case THERMOSTAT:
+                return new ThermostatDeviceHolder(parent);
+            case DEVICE:
+                //fallthtough
+            default:
+                return new GenericDeviceHolder(parent);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int i) {
+        Item item = getItem(i);
+        if (item == null) {
+            return;
+        }
+
+        LayoutManager.LayoutParams lp = LayoutManager.LayoutParams.from(holder.itemView.getLayoutParams());
+        lp.setSlm(LinearSLM.ID);
+        if (item.getType() == ViewTypes.HEADER) {
+            HeaderItem hi = (HeaderItem) item;
+            HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
+            hi.setViewholder(headerHolder);
+            headerHolder.update(hi.getGroup());
+            lp.setFirstPosition(i);
+        } else {
+            DeviceItem di = (DeviceItem) item;
+            DeviceViewHolder deviceHolder = (DeviceViewHolder) holder;
+            di.setViewholder(deviceHolder);
+            deviceHolder.bind(di.getDevice());
+            lp.setFirstPosition(di.getHeaderPos());
+        }
+        holder.itemView.setLayoutParams(lp);
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        Item item = getItem(position);
+        if (item == null) {
+            return 0;
+        }
+        return item.getType().ordinal();
+    }
+
+    public void updateItemsList() {
+        items.clear();
+        List<DevicePage> pages = DevicePageManager.getDevicePages();
+        if (devicePageIndex >= pages.size()) {
+            return;
+        }
+        List<DevicePage.GroupDevicePair> pairs = pages.get(devicePageIndex).getDevicesInGroups();
+        for (DevicePage.GroupDevicePair pair : pairs) {
+            int headerPos = items.size();
+            items.add(new HeaderItem(pair.group));
+            for (Device d : pair.devices) {
+                items.add(new DeviceItem(d, headerPos));
+            }
+        }
+        Log.v("DeviceAdapter", "Updated items list with: " + items.size() + " items (pairs: " + pairs.size() + ")");
+    }
+
+    public Item getItem(int position) {
+        if (position >= items.size()) {
+            return null;
+        }
+        //Log.v("DeviceAdapter","PageIndex" + devicePageIndex +  " devices: " + Arrays.toString(devices.toArray()));
+        return items.get(position);
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
+    private enum ViewTypes {
+        SWITCH, BUTTONS, DEVICE, THERMOSTAT, HEADER
+    }
+
+    public static abstract class Item {
+        public abstract ViewTypes getType();
+    }
+
+    public static class HeaderItem extends Item {
+        private Group group;
+        private WeakReference<HeaderViewHolder> viewholder;
+
+        public HeaderItem(Group g) {
+            this.group = g;
+        }
+
+        @Override
+        public ViewTypes getType() {
+            return ViewTypes.HEADER;
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public HeaderViewHolder getViewholder() {
+            if (viewholder != null) {
+                return viewholder.get();
+            }
+            return null;
+        }
+
+        public void setViewholder(HeaderViewHolder viewholder) {
+            this.viewholder = new WeakReference<HeaderViewHolder>(viewholder);
+        }
+    }
+
+    private static class ViewTypeVisiter implements DeviceVisitor<ViewTypes> {
+
+        @Override
+        public ViewTypes visitDevice(Device d) {
+            return ViewTypes.DEVICE;
+        }
+
+        @Override
+        public ViewTypes visitSwitchDevice(SwitchDevice d) {
+            return ViewTypes.SWITCH;
+        }
+
+
+        @Override
+        public ViewTypes visitButtonsDevice(ButtonsDevice buttonsDevice) {
+            return ViewTypes.BUTTONS;
+        }
+
+        @Override
+        public ViewTypes visitThermostatDevice(ThermostatDevice thermostatDevice) {
+            return ViewTypes.THERMOSTAT;
+        }
     }
 
     public abstract class ViewHolder extends RecyclerView.ViewHolder {
@@ -125,7 +281,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
 
         public void update(Group group) {
-            if(group != null) {
+            if (group != null) {
                 groupName.setText(group.getName());
             } else {
                 groupName.setText("Ungrouped");
@@ -141,7 +297,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         protected DeviceViewHolder(ViewGroup parent, int layout) {
             super(context.getLayoutInflater().inflate(layout, parent, false));
             this.deviceName = (TextView) itemView.findViewById(R.id.deviceName);
-            this.attrsLayout = (FlowLayout)itemView.findViewById(R.id.attributesLayout);
+            this.attrsLayout = (FlowLayout) itemView.findViewById(R.id.attributesLayout);
             itemView.setTag(this);
         }
 
@@ -151,7 +307,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             attrsLayout.removeAllViews();
             List<Device.Attribute> attributes = d.getAttributes();
             // iterate in reverse, because rtl layout
-            for (int i = attributes.size()-1; i >= 0; i--) {
+            for (int i = attributes.size() - 1; i >= 0; i--) {
                 Device.Attribute attr = attributes.get(i);
                 bindAttribute(d, attr);
             }
@@ -159,19 +315,19 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
 
         protected void bindAttribute(D d, Device.Attribute attr) {
-            if(!attr.isHidden()) {
+            if (!attr.isHidden()) {
                 LinearLayout attrLayout = (LinearLayout) context.getLayoutInflater().inflate(R.layout.device_attribute, attrsLayout, false);
-                TextView valueTV = (TextView)attrLayout.findViewById(R.id.value);
-                TextView acronymTV = (TextView)attrLayout.findViewById(R.id.acronym);
-                TextView unitTV = (TextView)attrLayout.findViewById(R.id.unit);
+                TextView valueTV = (TextView) attrLayout.findViewById(R.id.value);
+                TextView acronymTV = (TextView) attrLayout.findViewById(R.id.acronym);
+                TextView unitTV = (TextView) attrLayout.findViewById(R.id.unit);
                 String acronym = attr.getAcronym();
-                if(acronym == null || acronym.length() == 0) {
+                if (acronym == null || acronym.length() == 0) {
                     attrLayout.removeView(acronymTV);
                 } else {
                     acronymTV.setText(acronym);
                 }
                 updateAttributeValue(attr, valueTV, unitTV);
-                if(!(attr instanceof Device.NumberAttribute)) {
+                if (!(attr instanceof Device.NumberAttribute)) {
                     attrLayout.removeView(unitTV);
                 }
                 attrLayout.setTag(attr);
@@ -182,11 +338,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         public abstract ViewTypes getViewType();
 
         private void updateAttributeValue(Device.Attribute attr, TextView valueTV, TextView unitTV) {
-            if(attr instanceof Device.NumberAttribute) {
-                Device.NumberAttribute numAttr = ((Device.NumberAttribute)attr);
+            if (attr instanceof Device.NumberAttribute) {
+                Device.NumberAttribute numAttr = ((Device.NumberAttribute) attr);
                 double value = numAttr.getValue();
                 String unit = numAttr.getUnit();
-                if(unit == null) {
+                if (unit == null) {
                     unit = "";
                 }
                 Formater.ValueWithUnit info = Formater.formatValue(value, unit);
@@ -200,17 +356,17 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         public void attributeValueChanged(Device d, Device.Attribute attr) {
             for (int i = 0; i < attrsLayout.getChildCount(); i++) {
                 View child = attrsLayout.getChildAt(i);
-                if(child.getTag() == attr) {
-                    LinearLayout attrLayout = (LinearLayout)child;
-                    TextView valueTV = (TextView)attrLayout.findViewById(R.id.value);
-                    TextView unitTV = (TextView)attrLayout.findViewById(R.id.unit);
+                if (child.getTag() == attr) {
+                    LinearLayout attrLayout = (LinearLayout) child;
+                    TextView valueTV = (TextView) attrLayout.findViewById(R.id.value);
+                    TextView unitTV = (TextView) attrLayout.findViewById(R.id.unit);
                     updateAttributeValue(attr, valueTV, unitTV);
                 }
             }
         }
     }
 
-    private class GenericDeviceHolder extends DeviceViewHolder<Device>{
+    private class GenericDeviceHolder extends DeviceViewHolder<Device> {
 
         protected GenericDeviceHolder(ViewGroup parent) {
             super(parent, R.layout.device_layout);
@@ -222,7 +378,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
     }
 
-    private class SwitchDeviceHolder extends DeviceViewHolder<SwitchDevice>{
+    private class SwitchDeviceHolder extends DeviceViewHolder<SwitchDevice> {
         protected Switch stateSwitch;
 
         protected SwitchDeviceHolder(ViewGroup parent) {
@@ -233,20 +389,20 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             stateSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked) {
                     SwitchDevice d = SwitchDeviceHolder.this.device;
-                    if(d != null) {
+                    if (d != null) {
                         if (isChecked != d.getState()) {
-                            if(d.getConfig().optBoolean("xConfirm", false)) {
+                            if (d.getConfig().optBoolean("xConfirm", false)) {
                                 new AlertDialog.Builder(context)
                                         .setMessage("Do you really want to turn "
-                                                + device.getName() +  " "
-                                                + (isChecked ? "on" : "off")+ "?")
+                                                + device.getName() + " "
+                                                + (isChecked ? "on" : "off") + "?")
                                         .setCancelable(false)
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
                                                 changeStateTo(isChecked);
                                             }
                                         })
-                                        .setNegativeButton("No",  new DialogInterface.OnClickListener() {
+                                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int id) {
                                                 stateSwitch.setChecked(!isChecked);
                                             }
@@ -302,7 +458,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         }
 
         protected void bindAttribute(SwitchDevice d, Device.Attribute attr) {
-            if(attr.getName().equals("state")) {
+            if (attr.getName().equals("state")) {
                 stateSwitch.setChecked(d.getState());
             } else {
                 super.bindAttribute(d, attr);
@@ -311,8 +467,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
         @Override
         public void attributeValueChanged(Device d, Device.Attribute attr) {
-            if(attr.getName().equals("state")) {
-                stateSwitch.setChecked(((SwitchDevice)d).getState());
+            if (attr.getName().equals("state")) {
+                stateSwitch.setChecked(((SwitchDevice) d).getState());
             } else {
                 super.attributeValueChanged(d, attr);
             }
@@ -335,7 +491,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         public void bind(ButtonsDevice d) {
             super.bind(d);
             List<ButtonsDevice.Button> buttons = d.getButtons();
-            for (int i = buttons.size() -1; i >= 0 ; i--) {
+            for (int i = buttons.size() - 1; i >= 0; i--) {
                 final ButtonsDevice.Button button = buttons.get(i);
                 Button buttonW = (Button) context.getLayoutInflater().inflate(R.layout.buttons_device_button, attrsLayout, false);
                 buttonW.setText(button.text);
@@ -404,6 +560,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         protected Spinner mode;
         protected Debouncer<Double> callSetTemperatureAction;
         protected String[] modes = new String[]{"manu", "auto", "boost"};
+        protected boolean isUpdating = false;
 
         protected ThermostatDeviceHolder(ViewGroup parent) {
             super(parent, R.layout.device_layout);
@@ -441,7 +598,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                 }
             });
 
-            presetComfy.setOnClickListener(new View.OnClickListener(){
+            presetComfy.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     double value = device.getPresetTemp("comfy");
@@ -468,8 +625,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    double value = Double.parseDouble(s.toString());
-                    callSetTemperatureAction.call(value);
+                    if (!isUpdating) {
+                        double value = Double.parseDouble(s.toString());
+                        callSetTemperatureAction.call(value);
+                    }
+
                 }
             });
 
@@ -516,7 +676,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-                    Log.v("DeviceAdapter","Nothing selected");
+                    Log.v("DeviceAdapter", "Nothing selected");
                 }
             });
 
@@ -567,7 +727,8 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
         @Override
         public void attributeValueChanged(Device d, Device.Attribute attr) {
-            ThermostatDevice td = (ThermostatDevice)d;
+            isUpdating = true;
+            ThermostatDevice td = (ThermostatDevice) d;
             switch (attr.getName()) {
                 case "temperatureSetpoint":
                     setpointET.setText("" + td.getTemperatureSetpoint());
@@ -591,127 +752,13 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
                     this.mode.setSelection(index, true);
                     break;
             }
+            isUpdating = false;
         }
 
 
         @Override
         public ViewTypes getViewType() {
             return ViewTypes.BUTTONS;
-        }
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        //TODO cashing
-        switch(intToType[viewType]) {
-            case HEADER:
-                return new HeaderViewHolder(parent);
-            case SWITCH:
-                return new SwitchDeviceHolder(parent);
-            case BUTTONS:
-                return new ButtonsDeviceHolder(parent);
-            case THERMOSTAT:
-                return new ThermostatDeviceHolder(parent);
-            case DEVICE:
-                //fallthtough
-            default:
-                return new GenericDeviceHolder(parent);
-        }
-    }
-
-    @Override
-    public void onBindViewHolder(ViewHolder holder, int i) {
-        Item item = getItem(i);
-        if(item == null) {
-            return;
-        }
-
-        LayoutManager.LayoutParams lp = LayoutManager.LayoutParams.from(holder.itemView.getLayoutParams());
-        lp.setSlm(LinearSLM.ID);
-        if(item.getType() == ViewTypes.HEADER) {
-            HeaderItem hi = (HeaderItem) item;
-            HeaderViewHolder headerHolder = (HeaderViewHolder) holder;
-            hi.setViewholder(headerHolder);
-            headerHolder.update(hi.getGroup());
-            lp.setFirstPosition(i);
-        } else {
-            DeviceItem di = (DeviceItem) item;
-            DeviceViewHolder deviceHolder = (DeviceViewHolder) holder;
-            di.setViewholder(deviceHolder);
-            deviceHolder.bind(di.getDevice());
-            lp.setFirstPosition(di.getHeaderPos());
-        }
-        holder.itemView.setLayoutParams(lp);
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        Item item = getItem(position);
-        if(item == null) {
-            return 0;
-        }
-        return item.getType().ordinal();
-    }
-
-    public void updateItemsList() {
-        items.clear();
-        List<DevicePage> pages = DevicePageManager.getDevicePages();
-        if(devicePageIndex >= pages.size()) {
-            return;
-        }
-        List<DevicePage.GroupDevicePair> pairs =  pages.get(devicePageIndex).getDevicesInGroups();
-        for(DevicePage.GroupDevicePair pair : pairs) {
-            int headerPos = items.size();
-            items.add(new HeaderItem(pair.group));
-            for(Device d : pair.devices) {
-                items.add(new DeviceItem(d, headerPos));
-            }
-        }
-        Log.v("DeviceAdapter", "Updated items list with: " + items.size() +  " items (pairs: " + pairs.size() +")");
-    }
-
-    public Item getItem(int position) {
-        if(position >= items.size()) {
-            return null;
-        }
-        //Log.v("DeviceAdapter","PageIndex" + devicePageIndex +  " devices: " + Arrays.toString(devices.toArray()));
-        return items.get(position);
-    }
-
-    @Override
-    public int getItemCount() {
-        return items.size();
-    }
-
-    public static abstract class Item {
-       public abstract ViewTypes getType();
-    }
-
-    public static class HeaderItem extends Item {
-        private Group group;
-        private WeakReference<HeaderViewHolder> viewholder;
-        public HeaderItem(Group g) {
-            this.group = g;
-        }
-
-        @Override
-        public ViewTypes getType() {
-            return ViewTypes.HEADER;
-        }
-
-        public Group getGroup() {
-            return group;
-        }
-
-        public HeaderViewHolder getViewholder() {
-            if(viewholder != null) {
-                return viewholder.get();
-            }
-            return null;
-        }
-
-        public void setViewholder(HeaderViewHolder viewholder) {
-            this.viewholder = new WeakReference<HeaderViewHolder>(viewholder);
         }
     }
 
@@ -747,30 +794,6 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
         public void setViewholder(DeviceViewHolder viewholder) {
             this.viewholder = new WeakReference<DeviceViewHolder>(viewholder);
-        }
-    }
-
-    private static class ViewTypeVisiter implements DeviceVisitor<ViewTypes> {
-
-        @Override
-        public ViewTypes visitDevice(Device d) {
-            return ViewTypes.DEVICE;
-        }
-
-        @Override
-        public ViewTypes visitSwitchDevice(SwitchDevice d) {
-            return ViewTypes.SWITCH;
-        }
-
-
-        @Override
-        public ViewTypes visitButtonsDevice(ButtonsDevice buttonsDevice) {
-            return ViewTypes.BUTTONS;
-        }
-
-        @Override
-        public ViewTypes visitThermostatDevice(ThermostatDevice thermostatDevice) {
-            return ViewTypes.THERMOSTAT;
         }
     }
 

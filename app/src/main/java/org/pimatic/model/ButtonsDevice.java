@@ -4,13 +4,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by h3llfire on 16.05.15.
  */
-public class ButtonsDevice extends Device {
+public class ButtonsDevice extends Device implements Serializable {
 
     protected List<Button> buttons;
 
@@ -38,7 +39,7 @@ public class ButtonsDevice extends Device {
         return v.visitButtonsDevice(this);
     }
 
-    public class Button {
+    public class Button implements Serializable {
         public String id;
         public String text;
         boolean confirm;

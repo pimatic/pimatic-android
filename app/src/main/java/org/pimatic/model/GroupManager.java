@@ -15,8 +15,8 @@ import java.util.List;
  */
 public class GroupManager {
 
-    private static ArrayList<UpdateListener> listeners = new ArrayList<>();
-    private static ArrayList<Group> groups = new ArrayList<Group>();
+    private static List<UpdateListener> listeners = new ArrayList<>();
+    private static List<Group> groups = new ArrayList<Group>();
     private static HashMap<String, Group> groupOfDevice = new HashMap<>();
     private static HashMap<String, Integer> indexOfGroup = new HashMap<>();
 
@@ -107,12 +107,21 @@ public class GroupManager {
         }
     }
 
-    public static ArrayList<Group> getGroups() {
+    public static List<Group> getGroups() {
         return groups;
+    }
+
+    public static void setGroups(List<Group> groups) {
+        GroupManager.groups = groups;
+        didChange();
     }
 
     public static void onChange(UpdateListener l) {
         listeners.add(l);
+    }
+
+    public static void removeListener(UpdateListener listener) {
+        listeners.remove(listener);
     }
 
     public static abstract class UpdateListener {

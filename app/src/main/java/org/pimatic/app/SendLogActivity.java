@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Window;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -20,14 +22,22 @@ import java.io.InputStreamReader;
  */
 public class SendLogActivity extends Activity{
 
+    public static final String ARG_STACKTRACE = "ST";
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        requestWindowFeature (Window.FEATURE_NO_TITLE); // make a dialog without a titlebar
-        setFinishOnTouchOutside (false); // prevent users from dismissing the dialog by tapping outside
-        //setContentView (R.layout.send_log);
-        sendLogFile();
+        requestWindowFeature(Window.FEATURE_NO_TITLE); // make a dialog without a titlebar
+        setFinishOnTouchOutside(false); // prevent users from dismissing the dialog by tapping outside
+        setContentView(R.layout.send_log);
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            String stackTrace = extras.getString(ARG_STACKTRACE);
+            TextView logViewer = (TextView) findViewById(R.id.logtext);
+            logViewer.setMovementMethod(new ScrollingMovementMethod());
+            logViewer.setText(stackTrace);
+        }
     }
 
 

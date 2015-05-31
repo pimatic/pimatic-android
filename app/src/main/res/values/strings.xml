@@ -12,6 +12,7 @@
     <integer name="default_port">80</integer>
     <string name="default_username">demo</string>
     <string name="default_password">demo</string>
+    <string name="label">pimatic</string>
 
 
     <string-array name="protocols_names">

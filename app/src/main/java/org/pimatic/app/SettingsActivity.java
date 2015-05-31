@@ -1,13 +1,12 @@
 package org.pimatic.app;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Bundle;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,7 +23,7 @@ public class SettingsActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.settings);
+		setContentView(R.layout.account_settings);
 		final Spinner protocol = (Spinner) findViewById(R.id.protocol);
 		final EditText host = (EditText) findViewById(R.id.host);
 		final EditText port = (EditText) findViewById(R.id.port);

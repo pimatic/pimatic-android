@@ -2,7 +2,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="17dp">
 
     <TextView
         android:id="@+id/response"
@@ -14,14 +14,14 @@
 
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
         <Spinner
+            android:id="@+id/protocol"
             android:layout_width="77dp"
             android:layout_height="wrap_content"
-            android:id="@+id/protocol"
             android:entries="@array/protocols_names" />
 
         <EditText
@@ -31,7 +31,8 @@
             android:layout_alignLeft="@+id/response"
             android:layout_below="@+id/response"
             android:ems="10"
-            android:hint="Host" />
+            android:hint="Host"
+            android:singleLine="true" />
 
 
         <EditText
@@ -40,9 +41,10 @@
             android:layout_height="wrap_content"
             android:layout_alignLeft="@+id/response"
             android:layout_below="@+id/response"
-            android:inputType="numberDecimal"
             android:ems="10"
-            android:hint="Port" >
+            android:hint="Port"
+            android:inputType="numberDecimal"
+            android:singleLine="true">
 
             <requestFocus />
         </EditText>
@@ -60,7 +62,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="User" />
+        android:hint="User"
+        android:singleLine="true" />
 
     <EditText
         android:id="@+id/password"
@@ -68,7 +71,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Password"
-        android:inputType="textPassword" />
+        android:inputType="textPassword"
+        android:singleLine="true" />
 
     <TextView
         android:id="@+id/textView1"

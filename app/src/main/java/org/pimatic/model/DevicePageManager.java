@@ -4,30 +4,21 @@ package org.pimatic.model;
  * Created by h3llfire on 13.05.15.
  */
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.pimatic.helpers.Assert;
 
 import java.util.ArrayList;
-
-
-import android.util.Log;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by h3llfire on 21.06.14.
  */
 public class DevicePageManager {
 
-    private static ArrayList<UpdateListener> listeners = new ArrayList<>();
-    private static ArrayList<DevicePage> pages = new ArrayList<DevicePage>();
+    private static List<UpdateListener> listeners = new ArrayList<>();
+    private static List<DevicePage> pages = new ArrayList<DevicePage>();
 
     public static void updateFromJson(JSONArray DevicePageArray) throws JSONException {
         pages.clear();
@@ -80,17 +71,29 @@ public class DevicePageManager {
     }
 
     private static void didChange() {
+        Assert.isMainThread();
         for (UpdateListener l : listeners ) {
             l.onChange();
         }
     }
 
-    public static ArrayList<DevicePage> getDevicePages() {
+    public static List<DevicePage> getDevicePages() {
         return pages;
     }
 
     public static void onChange(UpdateListener l) {
+        Assert.isMainThread();
         listeners.add(l);
+    }
+
+    public static void removeListener(UpdateListener listener) {
+        Assert.isMainThread();
+        listeners.remove(listener);
+    }
+
+    public static void setPages(List<DevicePage> pages) {
+        DevicePageManager.pages = pages;
+        didChange();
     }
 
     public static abstract class UpdateListener {

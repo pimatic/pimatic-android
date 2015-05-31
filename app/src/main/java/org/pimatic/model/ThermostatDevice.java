@@ -1,16 +1,14 @@
 package org.pimatic.model;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 /**
  * Created by h3llfire on 17.05.15.
  */
-public class ThermostatDevice extends Device {
+public class ThermostatDevice extends Device implements Serializable {
 
     public ThermostatDevice(JSONObject obj) throws JSONException {
         super(obj);

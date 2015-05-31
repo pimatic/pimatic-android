@@ -5,18 +5,20 @@ import android.util.Log;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.pimatic.helpers.SerializeableJSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * Created by h3llfire on 21.06.14.
  */
-public class Device {
+public class Device implements Serializable {
 
     private String name;
     private String id;
     private String template;
-    private JSONObject config;
+    private SerializeableJSONObject config;
 
     private ArrayList<Attribute> attributes;
 
@@ -33,7 +35,18 @@ public class Device {
         this.name = name;
         this.id = id;
         this.template = template;
-        this.config = config;
+        this.config = new SerializeableJSONObject(config);
+    }
+
+    public static JSONObject getJsonAttribute(JSONObject deviceObj, String name) throws JSONException {
+        JSONArray attrs = deviceObj.getJSONArray("attributes");
+        for (int i = 0; i < attrs.length(); i++) {
+            JSONObject attr = attrs.getJSONObject(i);
+            if (attr.getString("name").equals(name)) {
+                return attr;
+            }
+        }
+        return null;
     }
 
     private void addAttribute(JSONObject attr) throws JSONException {
@@ -69,17 +82,6 @@ public class Device {
         return template;
     }
 
-    public static JSONObject getJsonAttribute(JSONObject deviceObj, String name) throws JSONException {
-        JSONArray attrs = deviceObj.getJSONArray("attributes");
-        for(int i = 0; i < attrs.length(); i++) {
-            JSONObject attr = attrs.getJSONObject(i);
-            if(attr.getString("name").equals(name)) {
-                return attr;
-            }
-        }
-        return null;
-    }
-
     public Attribute<?> getAttribute(String name) {
         for(Attribute a : attributes) {
             if(a.getName().equals(name)) {
@@ -99,10 +101,10 @@ public class Device {
     }
 
     public JSONObject getConfig() {
-        return config;
+        return config.get();
     }
 
-    public abstract class Attribute<T> {
+    public abstract class Attribute<T> implements Serializable {
         protected String name;
         protected String acronym;
         protected String label;
@@ -144,7 +146,7 @@ public class Device {
         }
     }
 
-    public class BooleanAttribute extends Attribute<Boolean> {
+    public class BooleanAttribute extends Attribute<Boolean> implements Serializable {
         protected String[] labels = {"false", "true"};
         
         public BooleanAttribute(JSONObject attr) throws JSONException {
@@ -162,7 +164,7 @@ public class Device {
         }
     }
 
-    public class StringAttribute extends Attribute<String> {
+    public class StringAttribute extends Attribute<String> implements Serializable {
         public StringAttribute(JSONObject attr) throws JSONException {
             super(attr, attr.optString("value", "Unknown"));
         }
@@ -173,7 +175,7 @@ public class Device {
         }
     }
 
-    public class NumberAttribute extends Attribute<Double> {
+    public class NumberAttribute extends Attribute<Double> implements Serializable {
         private String unit;
 
         public NumberAttribute(JSONObject attr) throws JSONException {

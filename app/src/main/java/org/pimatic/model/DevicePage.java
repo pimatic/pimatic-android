@@ -6,15 +6,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
  * Created by h3llfire on 21.06.14.
  */
-public class DevicePage {
+public class DevicePage implements Serializable {
 
     private String name;
     private String id;

@@ -26,6 +26,19 @@ public class SocketClient {
 
     Socket socket;
     Activity mainActivity;
+    private Emitter.Listener onConnectError = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(mainActivity.getApplicationContext(),
+                            "Connection Errror", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    };
+
 
     public SocketClient(final Activity mainActivity, final ConnectionOptions conOpts) {
         this.mainActivity = mainActivity;
@@ -326,7 +339,6 @@ public class SocketClient {
 
     }
 
-
     public void connect() {
         socket.connect();
     }
@@ -339,17 +351,8 @@ public class SocketClient {
         socket.emit("call", call);
     }
 
-    private Emitter.Listener onConnectError = new Emitter.Listener() {
-        @Override
-        public void call(Object... args) {
-            mainActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(mainActivity.getApplicationContext(),
-                            "Connection Errror", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-    };
+    public void disconnect() {
+        socket.disconnect();
+    }
 
 }
