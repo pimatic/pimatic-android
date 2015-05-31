@@ -47,11 +47,17 @@ public class Debouncer<T> {
     }
 
 
-    public void destroy() {
+    public void destroy(boolean call) {
         if(scheduled) {
             handler.removeCallbacks(runnable);
-            runnable.run();
+            if (call) {
+                runnable.run();
+            }
         }
+    }
+
+    public void destroy() {
+        destroy(false);
     }
 
     public interface Function<T> {

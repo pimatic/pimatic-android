@@ -1,6 +1,7 @@
 package org.pimatic.app;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -28,7 +29,6 @@ public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
             @Override
             public void onChange() {
                 notifyDataSetChanged();
-
             }
         });
     }
@@ -70,20 +70,29 @@ public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
         public View onCreateView(LayoutInflater inflater,
                                  ViewGroup container, Bundle savedInstanceState) {
 
-
-
-
             // The last two arguments ensure LayoutParams are inflated
             // properly.
             View rootView = inflater.inflate(
                     R.layout.device_page_layout, container, false);
             Bundle args = getArguments();
-            int index = args.getInt(ARG_OBJECT);
+            final int index = args.getInt(ARG_OBJECT);
             final RecyclerView listview = (RecyclerView) rootView.findViewById(R.id.devciesListView);
             LayoutManager mLayoutManager = new LayoutManager(getActivity());
             listview.setLayoutManager(mLayoutManager);
-            final DeviceAdapter adapter = new DeviceAdapter(getActivity(), index);
-            listview.setAdapter(adapter);
+
+            //Needed because the DeviceAdapter adds a listener to the DevicePageManager,
+            //but this method if caled in the loop of DevicePageManager.didChange and and
+            //DevicePageManager.onChange modifies the listener array, what leads to a violation
+            //exception
+            new Handler().post(new Runnable() {
+                @Override
+                public void run() {
+                    final DeviceAdapter adapter = new DeviceAdapter(getActivity(), index);
+                    listview.setAdapter(adapter);
+                }
+            });
+
+
 
 //        ((TextView) rootView.findViewById(android.R.id.text1)).setText(
 //                Integer.toString());
