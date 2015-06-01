@@ -27,7 +27,9 @@ public class Connection {
     }
 
     public static void connect() {
-        socket.connect();
+        if(socket != null) {
+            socket.connect();
+        }
     }
 
     public static RestClient getRest() {
@@ -39,7 +41,9 @@ public class Connection {
     }
 
     public static void disconnect() {
-        socket.disconnect();
+        if(socket != null) {
+            socket.disconnect();
+        }
     }
 
     public static ConnectionOptions getOptions() {

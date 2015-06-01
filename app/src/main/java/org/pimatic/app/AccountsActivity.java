@@ -10,11 +10,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,22 +26,26 @@ import org.pimatic.accounts.AccountGeneral;
 import org.pimatic.accounts.PimaticAccountAuthenticatorActivity;
 import org.pimatic.model.ConnectionOptions;
 
-public class AccountsActivity extends Activity {
+public class AccountsActivity  extends Fragment {
 
     private static final String STATE_DIALOG = "state_dialog";
     private static final String STATE_INVALIDATE = "state_invalidate";
-
+    private LinearLayout mLinearLayoutView;
     private String TAG = this.getClass().getSimpleName();
     private AccountManager mAccountManager;
-    private AlertDialog mAlertDialog;
-    private boolean mInvalidate;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
 
-        setContentView(R.layout.accounts);
-        mAccountManager = AccountManager.get(this);
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mLinearLayoutView = (LinearLayout) inflater.inflate(
+                R.layout.accounts, container, false);
+        mAccountManager = AccountManager.get(this.getActivity());
 
         final Account availableAccounts[] = mAccountManager.getAccountsByType(AccountGeneral.ACCOUNT_TYPE);
         String names[] = new String[availableAccounts.length];
@@ -45,15 +53,15 @@ public class AccountsActivity extends Activity {
             names[i] = availableAccounts[i].name;
         }
 
-        final ArrayAdapter<String> accounts = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, names);
-        ListView listView = (ListView) findViewById(R.id.accountsList);
+        final ArrayAdapter<String> accounts = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_list_item_1, names);
+        ListView listView = (ListView) mLinearLayoutView.findViewById(R.id.accountsList);
         listView.setAdapter(accounts);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapter, View v, int position,
                                     long arg3) {
-                final Intent intent = new Intent(AccountsActivity.this, PimaticAccountAuthenticatorActivity.class);
+                final Intent intent = new Intent(AccountsActivity.this.getActivity(), PimaticAccountAuthenticatorActivity.class);
                 Account account = availableAccounts[position];
                 intent.putExtra(PimaticAccountAuthenticatorActivity.ARG_ACCOUNT_TYPE, account.type);
                 intent.putExtra(PimaticAccountAuthenticatorActivity.ARG_AUTH_TYPE, AccountGeneral.AUTHTOKEN_TYPE_CONNECTION_URL);
@@ -64,28 +72,15 @@ public class AccountsActivity extends Activity {
             }
         });
 
-        findViewById(R.id.btnAddAccount).setOnClickListener(new View.OnClickListener() {
+        mLinearLayoutView.findViewById(R.id.btnAddAccount).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 addNewAccount(AccountGeneral.ACCOUNT_TYPE, AccountGeneral.AUTHTOKEN_TYPE_CONNECTION_URL);
-                finish();
             }
         });
 
+        return mLinearLayoutView;
 
-    }
-
-    private void setupAccountList() {
-
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (mAlertDialog != null && mAlertDialog.isShowing()) {
-            outState.putBoolean(STATE_DIALOG, true);
-            outState.putBoolean(STATE_INVALIDATE, mInvalidate);
-        }
     }
 
     /**
@@ -95,7 +90,7 @@ public class AccountsActivity extends Activity {
      * @param authTokenType
      */
     private void addNewAccount(String accountType, String authTokenType) {
-        final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, this, new AccountManagerCallback<Bundle>() {
+        final AccountManagerFuture<Bundle> future = mAccountManager.addAccount(accountType, authTokenType, null, null, this.getActivity(), new AccountManagerCallback<Bundle>() {
             @Override
             public void run(AccountManagerFuture<Bundle> future) {
                 try {
@@ -116,10 +111,10 @@ public class AccountsActivity extends Activity {
         if (TextUtils.isEmpty(msg))
             return;
 
-        runOnUiThread(new Runnable() {
+        getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(getBaseContext(), msg, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getBaseContext(), msg, Toast.LENGTH_SHORT).show();
             }
         });
     }

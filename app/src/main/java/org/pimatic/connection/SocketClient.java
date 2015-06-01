@@ -15,6 +15,7 @@ import org.pimatic.model.ConnectionOptions;
 import org.pimatic.model.DeviceManager;
 import org.pimatic.model.DevicePageManager;
 import org.pimatic.model.GroupManager;
+import org.pimatic.model.PermissionManager;
 
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -60,25 +61,33 @@ public class SocketClient {
 
                 @Override
                 public void call(Object... args) {
+                    final JSONObject helloObject = (JSONObject) args[0];
                     Log.v("hello", Arrays.toString(args));
+                    try {
+                        final JSONObject permissionsObject = helloObject.getJSONObject("permissions");
 
-                    mainActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                        try {
-                            JSONObject params = new JSONObject();
-                            params.put("criteria", new JSONObject(){
-                                {
-                                    put("level","error");
-                                }
-                            });
-                            SocketClient.this.call("queryMessagesCount", params);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        mainActivity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                            try {
+                                PermissionManager.updateFromJson(permissionsObject);
+                                JSONObject params = new JSONObject();
+                                params.put("criteria", new JSONObject(){
+                                    {
+                                        put("level","error");
+                                    }
+                                });
+                                SocketClient.this.call("queryMessagesCount", params);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
 
-                        }
-                    });
+                            }
+                        });
+                    }
+                    catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             }).on("devices", new Emitter.Listener() {
 
