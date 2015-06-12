@@ -1,7 +1,12 @@
 package org.pimatic.model;
 
 import android.accounts.Account;
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
+import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
 
 import org.pimatic.accounts.AccountGeneral;
 
@@ -38,6 +43,13 @@ public class AccountManager {
             ;
         }
         return null;
+    }
+
+    /**
+     * Add new account to the account manager
+     */
+    public AccountManagerFuture<Bundle> addNewAccount(Activity activity, AccountManagerCallback<Bundle> callback) {
+        return accountManager.addAccount(AccountGeneral.ACCOUNT_TYPE, AccountGeneral.AUTHTOKEN_TYPE_CONNECTION_URL, null, null, activity, callback, null);
     }
 
 

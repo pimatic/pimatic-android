@@ -1,6 +1,9 @@
 package org.pimatic.app;
 
+import android.accounts.AccountManagerCallback;
+import android.accounts.AccountManagerFuture;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +22,7 @@ import android.widget.Spinner;
 import android.support.v7.app.AppCompatActivity;
 
 import org.pimatic.connection.Connection;
+import org.pimatic.helpers.Toast;
 import org.pimatic.model.AccountManager;
 import org.pimatic.model.ConnectionOptions;
 
@@ -60,23 +64,16 @@ public class MainActivity extends AppCompatActivity
             Connection.connect();
         }
 
-
         if (savedInstanceState != null) {
             activeGroupPosition = savedInstanceState.getInt("activeGroupPosition");
             activeChildPosition = savedInstanceState.getInt("activeChildPosition");
-            onNavigationDrawerItemSelected(activeGroupPosition, activeChildPosition);
-            mNavigationDrawerFragment.setItemChecked(activeGroupPosition,activeChildPosition);
-        }
-        else {
+        } else {
             activeGroupPosition = 0;
             activeChildPosition = 0;
-            mDevicePagesFragment = new DevicePagesFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container,
-                            mDevicePagesFragment, "PAGES").commit();
-            activeMainFragmentTag = "PAGES";
-            mNavigationDrawerFragment.setItemChecked(activeGroupPosition,activeChildPosition);
         }
+        onNavigationDrawerItemSelected(activeGroupPosition, activeChildPosition);
+        mNavigationDrawerFragment.setItemChecked(activeGroupPosition,activeChildPosition);
+
 //        Log.v("Test", Formater.formatValue(1, "B").toString());
 //        Log.v("Test", Formater.formatValue(1100, "B").toString());
 //        Log.v("Test", Formater.formatValue(10001, "B").toString());
@@ -109,6 +106,25 @@ public class MainActivity extends AppCompatActivity
         actionBar.setCustomView(accountSelector);
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
+
+        if (accounts.length == 0) {
+            accountManager.addNewAccount(this, new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture<Bundle> future) {
+                    try {
+                        Bundle bnd = future.getResult();
+                        Toast.showMessage(MainActivity.this, "Account was created");
+//                    Log.d("udinic", "AddNewAccount Bundle is " + bnd);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+//                    showMessage(e.getMessage());
+                    }
+                }
+            });
+        }
+
+        //AlertDialogFragment.newInstance(R.string.devices);
     }
 
     @Override
