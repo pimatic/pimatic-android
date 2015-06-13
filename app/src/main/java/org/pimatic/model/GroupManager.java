@@ -13,16 +13,23 @@ import java.util.List;
 /**
  * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
-public class GroupManager {
+public class GroupManager extends UpdateEventEmitter<GroupManager.UpdateListener>{
 
-    private static List<UpdateListener> listeners = new ArrayList<>();
-    private static List<Group> groups = new ArrayList<Group>();
-    private static HashMap<String, Group> groupOfDevice = new HashMap<>();
-    private static HashMap<String, Integer> indexOfGroup = new HashMap<>();
+    private List<Group> groups = new ArrayList<Group>();
+    private HashMap<String, Group> groupOfDevice = new HashMap<>();
+    private HashMap<String, Integer> indexOfGroup = new HashMap<>();
 
-    static {
+    private static GroupManager instance;
+    public static GroupManager getInstance() {
+        if(instance == null) {
+            instance = new GroupManager();
+        }
+        return instance;
+    }
+
+    private GroupManager() {
         // bind groupOfDevice mapping
-        GroupManager.onChange(new GroupManager.UpdateListener(){
+        onChange(new GroupManager.UpdateListener(){
             @Override
             public void onChange() {
                 groupOfDevice.clear();
@@ -39,7 +46,7 @@ public class GroupManager {
         });
     }
 
-    public static void updateFromJson(JSONArray GroupArray) throws JSONException {
+    public void updateFromJson(JSONArray GroupArray) throws JSONException {
         groups.clear();
         for (int i = 0; i < GroupArray.length(); i++) {
             JSONObject GroupObj = GroupArray.getJSONObject(i);
@@ -50,7 +57,7 @@ public class GroupManager {
     }
 
 
-    public static Group getGroupById(String id) {
+    public Group getGroupById(String id) {
         Integer index = indexOfGroup.get(id);
         if(index == null) {
             return null;
@@ -58,7 +65,7 @@ public class GroupManager {
         return groups.get(index);
     }
 
-    public static int getIndexOf(Group g) {
+    public int getIndexOf(Group g) {
         Integer index = indexOfGroup.get(g.getName());
         Log.v("GroupManager", g.getName() + " " + index);
         if(index == null) {
@@ -68,15 +75,15 @@ public class GroupManager {
         }
     }
 
-    public static Group getGroupOfDevice(Device d) {
+    public Group getGroupOfDevice(Device d) {
         return groupOfDevice.get(d.getId());
     }
 
-    private static Group createGroupFromJson(JSONObject obj) throws JSONException {
+    private Group createGroupFromJson(JSONObject obj) throws JSONException {
         return new Group(obj);
     }
 
-    public static void updateGroupFromJson(JSONObject GroupObject) throws JSONException {
+    public void updateGroupFromJson(JSONObject GroupObject) throws JSONException {
         Group oldGroup = getGroupById(GroupObject.getString("id"));
         if (oldGroup == null) {
             addGroupFromJson(GroupObject);
@@ -87,13 +94,13 @@ public class GroupManager {
         didChange();
     }
 
-    public static void addGroupFromJson(JSONObject GroupObject) throws JSONException {
+    public void addGroupFromJson(JSONObject GroupObject) throws JSONException {
         Group d = createGroupFromJson(GroupObject);
         groups.add(d);
         didChange();
     }
 
-    public static void removeGroupById(String id) {
+    public void removeGroupById(String id) {
         Group oldGroup = getGroupById(id);
         if (oldGroup != null) {
             groups.remove(oldGroup);
@@ -101,31 +108,18 @@ public class GroupManager {
         }
     }
 
-    private static void didChange() {
-        for (UpdateListener l : listeners) {
-            l.onChange();
-        }
-    }
 
-    public static List<Group> getGroups() {
+    public List<Group> getGroups() {
         return groups;
     }
 
-    public static void setGroups(List<Group> groups) {
-        GroupManager.groups = groups;
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
         didChange();
     }
 
-    public static void onChange(UpdateListener l) {
-        listeners.add(l);
-    }
-
-    public static void removeListener(UpdateListener listener) {
-        listeners.remove(listener);
-    }
-
-    public static abstract class UpdateListener {
-        public abstract void onChange();
+    public interface UpdateListener extends UpdateEventEmitter.UpdateListener {
+        void onChange();
     }
 
 

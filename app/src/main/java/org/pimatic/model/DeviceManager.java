@@ -12,12 +12,24 @@ import java.util.List;
 /**
  * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
-public class DeviceManager {
+public class DeviceManager extends UpdateEventEmitter<DeviceManager.UpdateListener>{
 
-    private static List<UpdateListener> listeners = new ArrayList<>();
-    private static List<Device> devices = new ArrayList<Device>();
+    private List<Device> devices = new ArrayList<Device>();
 
-    public static void updateFromJson(JSONArray deviceArray) throws JSONException {
+    private static DeviceManager instance;
+    public static DeviceManager getInstance() {
+        if(instance == null) {
+            instance = new DeviceManager();
+        }
+        return instance;
+    }
+
+    private DeviceManager() {
+
+    }
+
+
+    public void updateFromJson(JSONArray deviceArray) throws JSONException {
         devices.clear();
         for(int i = 0; i < deviceArray.length(); i++) {
             JSONObject deviceObj = deviceArray.getJSONObject(i);
@@ -28,7 +40,7 @@ public class DeviceManager {
     }
 
 
-    public static Device getDeviceById(String id) {
+    public Device getDeviceById(String id) {
         for(Device d : devices) {
             if(d.getId().equals(id)) {
                 return d;
@@ -38,7 +50,7 @@ public class DeviceManager {
     }
 
 
-    private static Device createDeviceFromJson(JSONObject obj) throws JSONException {
+    private Device createDeviceFromJson(JSONObject obj) throws JSONException {
         String template = obj.getString("template");
         switch (template) {
             case "switch":
@@ -52,7 +64,7 @@ public class DeviceManager {
         }
     }
 
-    public static void updateDeviceFromJson(JSONObject deviceObject) throws JSONException {
+    public void updateDeviceFromJson(JSONObject deviceObject) throws JSONException {
         Device oldDevice = getDeviceById(deviceObject.getString("id"));
         if(oldDevice == null) {
             addDeviceFromJson(deviceObject);
@@ -63,13 +75,13 @@ public class DeviceManager {
         didChange();
     }
 
-    public static void addDeviceFromJson(JSONObject deviceObject) throws JSONException {
+    public void addDeviceFromJson(JSONObject deviceObject) throws JSONException {
         Device d = createDeviceFromJson(deviceObject);
         devices.add(d);
         didChange();
     }
 
-    public static void removeDeviceById(String id) {
+    public void removeDeviceById(String id) {
         Device oldDevice = getDeviceById(id);
         if(oldDevice != null) {
             devices.remove(oldDevice);
@@ -77,7 +89,7 @@ public class DeviceManager {
         didChange();
     }
 
-    public static void deviceAttributeChanged(String deviceId, String attributeName, int time, Object value) {
+    public void deviceAttributeChanged(String deviceId, String attributeName, int time, Object value) {
         Device d = getDeviceById(deviceId);
         if(d == null) {
             Log.v("DeviceManager", "Device " +  deviceId + " not found");
@@ -116,38 +128,26 @@ public class DeviceManager {
         attributeValueChanged(d, attr);
     }
 
-    private static void attributeValueChanged(Device d, Device.Attribute attr) {
-        for (UpdateListener l : listeners ) {
-            l.onAttributeValueChange(d, attr);
-        }
+    private void attributeValueChanged(final Device d, final Device.Attribute attr) {
+        didChange(new UpdateListenerNotifier<DeviceManager.UpdateListener>() {
+            @Override
+            public void notifyListener(DeviceManager.UpdateListener listener) {
+                listener.onAttributeValueChange(d, attr);
+            }
+        });
     }
 
-
-    private static void didChange() {
-        for (UpdateListener l : listeners ) {
-            l.onChange();
-        }
-    }
-
-    public static List<Device> getDevices() {
+    public List<Device> getDevices() {
         return devices;
     }
 
-    public static void setDevices(List<Device> devices) {
-        DeviceManager.devices = devices;
+    public void setDevices(List<Device> devices) {
+        this.devices = devices;
         didChange();
     }
 
-    public static void onChange(UpdateListener l) {
-        listeners.add(l);
-    }
-
-    public static void removeListener(UpdateListener listener) {
-        listeners.remove(listener);
-    }
-
-    public static abstract class UpdateListener {
-        public abstract void onChange();
-        public abstract void onAttributeValueChange(Device d, Device.Attribute attr);
+    public interface UpdateListener extends UpdateEventEmitter.UpdateListener {
+        void onChange();
+        void onAttributeValueChange(Device d, Device.Attribute attr);
     }
 }

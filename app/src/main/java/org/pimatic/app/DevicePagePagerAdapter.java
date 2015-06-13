@@ -27,7 +27,7 @@ public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
     public DevicePagePagerAdapter(final FragmentManager fm) {
         super(fm);
 
-        DevicePageManager.onChange(listener = new DevicePageManager.UpdateListener() {
+        DevicePageManager.getInstance().getInstance().onChange(listener = new DevicePageManager.UpdateListener() {
             @Override
             public void onChange() {
                 notifyDataSetChanged();
@@ -37,7 +37,7 @@ public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
     }
 
     public void destroy() {
-        DevicePageManager.removeListener(listener);
+        DevicePageManager.getInstance().getInstance().removeListener(listener);
     }
 
     @Override
@@ -51,12 +51,12 @@ public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return DevicePageManager.getDevicePages().size();
+        return DevicePageManager.getInstance().getDevicePages().size();
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        DevicePage page = DevicePageManager.getDevicePages().get(position);
+        DevicePage page = DevicePageManager.getInstance().getDevicePages().get(position);
         if(page == null) {
             return "";
         }

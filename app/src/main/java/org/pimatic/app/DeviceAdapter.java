@@ -72,7 +72,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
         super.onAttachedToRecyclerView(recyclerView);
         updateItemsList();
 
-        DeviceManager.onChange(deviceUpdateListener = new DeviceManager.UpdateListener() {
+        DeviceManager.getInstance().onChange(deviceUpdateListener = new DeviceManager.UpdateListener() {
             @Override
             public void onChange() {
                 updateItemsList();
@@ -83,11 +83,11 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             public void onAttributeValueChange(Device d, Device.Attribute attr) {
                 for (int i = 0; i < items.size(); i++) {
                     Item item = items.get(i);
-                    if(item instanceof DeviceItem) {
-                        DeviceItem deviceItem = (DeviceItem)item;
-                        if(deviceItem.getDevice() == d) {
+                    if (item instanceof DeviceItem) {
+                        DeviceItem deviceItem = (DeviceItem) item;
+                        if (deviceItem.getDevice() == d) {
                             DeviceViewHolder dvh = deviceItem.getViewholder();
-                            if(dvh != null) {
+                            if (dvh != null) {
                                 dvh.attributeValueChanged(d, attr);
                             }
                         }
@@ -96,7 +96,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             }
         });
 
-        DevicePageManager.onChange(devicePageListener = new DevicePageManager.UpdateListener() {
+        DevicePageManager.getInstance().onChange(devicePageListener = new DevicePageManager.UpdateListener() {
             @Override
             public void onChange() {
                 updateItemsList();
@@ -104,7 +104,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
             }
         });
 
-        GroupManager.onChange(groupListener = new GroupManager.UpdateListener() {
+        GroupManager.getInstance().onChange(groupListener = new GroupManager.UpdateListener() {
             @Override
             public void onChange() {
                 updateItemsList();
@@ -116,9 +116,9 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
     @Override
     public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        DeviceManager.removeListener(deviceUpdateListener);
-        DevicePageManager.removeListener(devicePageListener);
-        GroupManager.removeListener(groupListener);
+        DeviceManager.getInstance().removeListener(deviceUpdateListener);
+        DevicePageManager.getInstance().removeListener(devicePageListener);
+        GroupManager.getInstance().removeListener(groupListener);
     }
 
     @Override
@@ -176,7 +176,7 @@ public class DeviceAdapter extends RecyclerView.Adapter<DeviceAdapter.ViewHolder
 
     public void updateItemsList() {
         items.clear();
-        List<DevicePage> pages = DevicePageManager.getDevicePages();
+        List<DevicePage> pages = DevicePageManager.getInstance().getDevicePages();
         if (devicePageIndex >= pages.size()) {
             return;
         }

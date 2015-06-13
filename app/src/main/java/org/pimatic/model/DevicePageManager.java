@@ -11,12 +11,23 @@ import java.util.List;
 /**
  * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
-public class DevicePageManager {
+public class DevicePageManager extends UpdateEventEmitter<DevicePageManager.UpdateListener> {
 
-    private static List<UpdateListener> listeners = new ArrayList<>();
-    private static List<DevicePage> pages = new ArrayList<DevicePage>();
+    private List<DevicePage> pages = new ArrayList<DevicePage>();
 
-    public static void updateFromJson(JSONArray DevicePageArray) throws JSONException {
+    private static DevicePageManager instance;
+    public static DevicePageManager getInstance() {
+        if(instance == null) {
+            instance = new DevicePageManager();
+        }
+        return instance;
+    }
+
+    private DevicePageManager() {
+
+    }
+
+    public void updateFromJson(JSONArray DevicePageArray) throws JSONException {
         pages.clear();
         for(int i = 0; i < DevicePageArray.length(); i++) {
             JSONObject DevicePageObj = DevicePageArray.getJSONObject(i);
@@ -27,7 +38,7 @@ public class DevicePageManager {
     }
 
 
-    public static DevicePage getDevicePageById(String id) {
+    public DevicePage getDevicePageById(String id) {
         for(DevicePage d : pages) {
             if(d.getId().equals(id)) {
                 return d;
@@ -37,11 +48,11 @@ public class DevicePageManager {
     }
 
 
-    private static DevicePage createDevicePageFromJson(JSONObject obj) throws JSONException {
+    private DevicePage createDevicePageFromJson(JSONObject obj) throws JSONException {
         return new DevicePage(obj);
     }
 
-    public static void updateDevicePageFromJson(JSONObject DevicePageObject) throws JSONException {
+    public void updateDevicePageFromJson(JSONObject DevicePageObject) throws JSONException {
         DevicePage oldDevicePage = getDevicePageById(DevicePageObject.getString("id"));
         if(oldDevicePage == null) {
             addDevicePageFromJson(DevicePageObject);
@@ -52,13 +63,13 @@ public class DevicePageManager {
         didChange();
     }
 
-    public static void addDevicePageFromJson(JSONObject DevicePageObject) throws JSONException {
+    public void addDevicePageFromJson(JSONObject DevicePageObject) throws JSONException {
         DevicePage d = createDevicePageFromJson(DevicePageObject);
         pages.add(d);
         didChange();
     }
 
-    public static void removeDevicePageById(String id) {
+    public void removeDevicePageById(String id) {
         DevicePage oldDevicePage = getDevicePageById(id);
         if(oldDevicePage != null) {
             pages.remove(oldDevicePage);
@@ -66,33 +77,19 @@ public class DevicePageManager {
         didChange();
     }
 
-    private static void didChange() {
-        Assert.isMainThread();
-        for (UpdateListener l : listeners ) {
-            l.onChange();
-        }
-    }
 
-    public static List<DevicePage> getDevicePages() {
+
+    public List<DevicePage> getDevicePages() {
         return pages;
     }
 
-    public static void onChange(UpdateListener l) {
-        Assert.isMainThread();
-        listeners.add(l);
-    }
 
-    public static void removeListener(UpdateListener listener) {
-        Assert.isMainThread();
-        listeners.remove(listener);
-    }
-
-    public static void setPages(List<DevicePage> pages) {
-        DevicePageManager.pages = pages;
+    public void setPages(List<DevicePage> pages) {
+        this.pages = pages;
         didChange();
     }
 
-    public static abstract class UpdateListener {
-        public abstract void onChange();
+    public interface UpdateListener extends UpdateEventEmitter.UpdateListener {
+        void onChange();
     }
 }

@@ -39,10 +39,11 @@ public class DevicePage implements Serializable {
     }
 
     public List<Device> getDevices() {
-        ArrayList<Device> devices = new ArrayList<>();
+        final DeviceManager deviceManager = DeviceManager.getInstance();
+        final ArrayList<Device> devices = new ArrayList<>();
         for (int i = 0; i < deviceIds.size(); i++) {
             String deviceId = deviceIds.get(i);
-            Device d = DeviceManager.getDeviceById(deviceId);
+            Device d = deviceManager.getDeviceById(deviceId);
             if (d == null) {
                 Log.w("DevicePage", "Could not find device: " + deviceId);
             } else {
@@ -53,11 +54,11 @@ public class DevicePage implements Serializable {
     }
 
     public List<GroupDevicePair> getDevicesInGroups() {
-        List<Device> devices = getDevices();
-        //Log.w("DevicePage", "Devices count: " + devices.size());
-        List<GroupDevicePair> pairs = new ArrayList<>();
+        final GroupManager groupManager = GroupManager.getInstance();
+        final List<Device> devices = getDevices();
+        final List<GroupDevicePair> pairs = new ArrayList<>();
         for(Device d : devices) {
-            Group g = GroupManager.getGroupOfDevice(d);
+            Group g = groupManager.getGroupOfDevice(d);
             //find pair
             GroupDevicePair pair = null;
             for(GroupDevicePair p : pairs) {
@@ -95,8 +96,8 @@ public class DevicePage implements Serializable {
             if(another.group == null) {
                 return -1;
             }
-
-            return GroupManager.getIndexOf(this.group) - GroupManager.getIndexOf(another.group);
+            final GroupManager groupManager = GroupManager.getInstance();
+            return groupManager.getIndexOf(this.group) - groupManager.getIndexOf(another.group);
         }
     }
 

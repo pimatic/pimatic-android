@@ -47,7 +47,9 @@ public class SocketClient {
         opts.query = "username=" + conOpts.username + "&password=" + conOpts.password;
         opts.reconnection = true;
         opts.forceNew = true;
-
+        final DeviceManager deviceManager = DeviceManager.getInstance();
+        final GroupManager groupManager = GroupManager.getInstance();
+        final DevicePageManager devicePageManager = DevicePageManager.getInstance();
         try {
             socket = IO.socket(conOpts.getBaseUrl(), opts);
             socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
@@ -98,7 +100,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DeviceManager.updateFromJson(deviceArray);
+                                deviceManager.updateFromJson(deviceArray);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -114,7 +116,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DeviceManager.updateDeviceFromJson(deviceObject);
+                                deviceManager.updateDeviceFromJson(deviceObject);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -130,7 +132,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DeviceManager.addDeviceFromJson(deviceObject);
+                                deviceManager.addDeviceFromJson(deviceObject);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -146,7 +148,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DeviceManager.removeDeviceById(deviceObject.getString("id"));
+                                deviceManager.removeDeviceById(deviceObject.getString("id"));
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -163,7 +165,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DeviceManager.deviceAttributeChanged(
+                                deviceManager.deviceAttributeChanged(
                                         eventObject.getString("deviceId"),
                                         eventObject.getString("attributeName"),
                                         eventObject.getInt("time"),
@@ -185,7 +187,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DevicePageManager.updateFromJson(devicePageArray);
+                                devicePageManager.updateFromJson(devicePageArray);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -201,7 +203,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DevicePageManager.updateDevicePageFromJson(page);
+                                devicePageManager.updateDevicePageFromJson(page);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -217,7 +219,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DevicePageManager.addDevicePageFromJson(page);
+                                devicePageManager.addDevicePageFromJson(page);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -233,7 +235,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                DevicePageManager.removeDevicePageById(devicePageObject.getString("id"));
+                                devicePageManager.removeDevicePageById(devicePageObject.getString("id"));
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -250,7 +252,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                GroupManager.updateFromJson(groupsArray);
+                                groupManager.updateFromJson(groupsArray);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -266,7 +268,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                GroupManager.updateGroupFromJson(group);
+                                groupManager.updateGroupFromJson(group);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -282,7 +284,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                GroupManager.addGroupFromJson(group);
+                                groupManager.addGroupFromJson(group);
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
@@ -298,7 +300,7 @@ public class SocketClient {
                         @Override
                         public void run() {
                             try {
-                                GroupManager.removeGroupById(groupEvent.getString("id"));
+                                groupManager.removeGroupById(groupEvent.getString("id"));
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }

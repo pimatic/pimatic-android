@@ -18,16 +18,26 @@ public class AccountAdapter extends ArrayAdapter<String> {
     private final Activity context;
     ArrayList<String> names;
 
-    public AccountAdapter(Activity context, ArrayList<String> names) {
+    public AccountAdapter(Activity context, final ArrayList<String> names) {
         super(context, R.layout.accounts_spinner_item, names);
         this.context = context;
         this.names = names;
-        AccountManager accountManager = new AccountManager(context);
-        String[] accounts = accountManager.getAllAccountNames();
-        for (int i = 0; i < accounts.length; i++) {
-            names.add(accounts[i]);
-        }
-        notifyDataSetChanged();
+        final AccountManager accountManager = AccountManager.getInstance(context);
+
+        AccountManager.UpdateListener onUpdate = new AccountManager.UpdateListener() {
+            @Override
+            public void onChange() {
+                names.clear();
+                String[] accounts = accountManager.getAllAccountNames();
+                for (int i = 0; i < accounts.length; i++) {
+                    names.add(accounts[i]);
+                }
+                notifyDataSetChanged();
+            }
+        };
+
+        accountManager.onChange(onUpdate);
+        onUpdate.onChange();
     }
 
     @Override

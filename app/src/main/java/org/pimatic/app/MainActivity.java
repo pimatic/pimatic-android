@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        final AccountManager accountManager = new AccountManager(this);
+        final AccountManager accountManager = AccountManager.getInstance(this);
         final String[] accounts = accountManager.getAllAccountNames();
         ConnectionCache.init(this, accounts);
 

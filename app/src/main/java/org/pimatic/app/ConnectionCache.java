@@ -61,9 +61,9 @@ public class ConnectionCache {
     public static void saveToCache(Context context, ConnectionOptions conOps) {
         String filename = getCacheFilename(context, conOps);
         CacheHolder holder = new CacheHolder(
-                DeviceManager.getDevices(),
-                DevicePageManager.getDevicePages(),
-                GroupManager.getGroups()
+                DeviceManager.getInstance().getDevices(),
+                DevicePageManager.getInstance().getDevicePages(),
+                GroupManager.getInstance().getGroups()
         );
         save(context, holder, filename);
     }
@@ -73,9 +73,10 @@ public class ConnectionCache {
         CacheHolder holder = load(context, filename);
         Log.v("Cache", "Holder" + holder);
         if (holder != null) {
-            DeviceManager.setDevices(holder.device);
-            DevicePageManager.setPages(holder.pages);
-            GroupManager.setGroups(holder.groups);
+
+            DeviceManager.getInstance().setDevices(holder.device);
+            DevicePageManager.getInstance().setPages(holder.pages);
+            GroupManager.getInstance().setGroups(holder.groups);
         }
 
     }

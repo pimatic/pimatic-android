@@ -43,7 +43,7 @@ public class NavigationDrawerAdapter extends BaseExpandableListAdapter {
 
         groupItem = groupItems;
 
-        DevicePageManager.onChange(new DevicePageManager.UpdateListener() {
+        DevicePageManager.getInstance().onChange(new DevicePageManager.UpdateListener() {
             @Override
             public void onChange() {
                 rebuildDataset();
@@ -56,7 +56,7 @@ public class NavigationDrawerAdapter extends BaseExpandableListAdapter {
     private void rebuildDataset() {
         ArrayList<String> child = new ArrayList<String>();
 
-        for (DevicePage item : DevicePageManager.getDevicePages())
+        for (DevicePage item : DevicePageManager.getInstance().getDevicePages())
         {
             child.add(item.getName());
         }

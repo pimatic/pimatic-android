@@ -42,10 +42,11 @@ public class Group implements Serializable {
     }
 
     public List<Device> getDevices() {
-        ArrayList<Device> devices = new ArrayList<>();
+        final DeviceManager deviceManager = DeviceManager.getInstance();
+        final ArrayList<Device> devices = new ArrayList<>();
         for (int i = 0; i < deviceIds.size(); i++) {
             String deviceId = deviceIds.get(i);
-            Device d = DeviceManager.getDeviceById(deviceId);
+            Device d = deviceManager.getDeviceById(deviceId);
             if (d == null) {
                 Log.w("Group", "Could not find device: " + deviceId);
             } else {
