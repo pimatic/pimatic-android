@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Created by h3llfire on 14.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class GroupManager {
 

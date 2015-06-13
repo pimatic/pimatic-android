@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by h3llfire on 21.06.14.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class Device implements Serializable {
 

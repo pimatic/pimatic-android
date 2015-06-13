@@ -18,7 +18,7 @@ import org.pimatic.model.DevicePage;
 import org.pimatic.model.DevicePageManager;
 
 /**
- * Created by h3llfire on 13.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class DevicePagePagerAdapter  extends FragmentStatePagerAdapter {
 

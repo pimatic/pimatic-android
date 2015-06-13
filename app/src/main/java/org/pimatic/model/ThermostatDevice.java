@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 /**
- * Created by h3llfire on 17.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class ThermostatDevice extends Device implements Serializable {
 

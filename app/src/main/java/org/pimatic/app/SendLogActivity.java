@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Created by h3llfire on 30.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class SendLogActivity extends Activity{
 

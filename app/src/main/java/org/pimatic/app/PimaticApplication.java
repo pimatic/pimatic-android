@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 /**
- * Created by h3llfire on 30.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class PimaticApplication extends Application {
     public void onCreate ()

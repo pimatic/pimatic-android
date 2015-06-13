@@ -11,7 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * Created by h3llfire on 15.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class ConnectionOptions {
 

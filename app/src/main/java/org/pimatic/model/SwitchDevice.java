@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 
 /**
- * Created by h3llfire on 21.06.14.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class SwitchDevice extends Device implements Serializable {
 

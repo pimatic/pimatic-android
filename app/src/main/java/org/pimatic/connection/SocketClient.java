@@ -21,7 +21,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 
 /**
- * Created by h3llfire on 10.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class SocketClient {
 

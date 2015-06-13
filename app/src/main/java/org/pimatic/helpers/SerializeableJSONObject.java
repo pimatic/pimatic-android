@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * Created by h3llfire on 31.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class SerializeableJSONObject implements Serializable {
     private JSONObject obj;

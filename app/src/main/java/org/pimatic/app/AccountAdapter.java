@@ -12,7 +12,7 @@ import org.pimatic.model.AccountManager;
 import java.util.ArrayList;
 
 /**
- * Created by h3llfire on 31.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class AccountAdapter extends ArrayAdapter<String> {
     private final Activity context;

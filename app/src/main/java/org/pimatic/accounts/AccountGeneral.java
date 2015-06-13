@@ -1,7 +1,7 @@
 package org.pimatic.accounts;
 
 /**
- * Created by h3llfire on 30.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class AccountGeneral {
     /**

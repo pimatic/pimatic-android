@@ -7,7 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 /**
- * Created by h3llfire on 02.06.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class AlertDialogFragment extends DialogFragment {
 

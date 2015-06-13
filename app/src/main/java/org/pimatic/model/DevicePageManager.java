@@ -1,9 +1,5 @@
 package org.pimatic.model;
 
-/**
- * Created by h3llfire on 13.05.15.
- */
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by h3llfire on 21.06.14.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class DevicePageManager {
 

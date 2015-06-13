@@ -3,7 +3,7 @@ package org.pimatic.helpers;
 import android.os.Looper;
 
 /**
- * Created by h3llfire on 31.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class Assert {
 

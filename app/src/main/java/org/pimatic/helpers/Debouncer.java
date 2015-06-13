@@ -4,7 +4,7 @@ import android.os.Handler;
 import android.util.Log;
 
 /**
- * Created by h3llfire on 18.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class Debouncer<T> {
 

@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by h3llfire on 21.06.14.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class DevicePage implements Serializable {
 

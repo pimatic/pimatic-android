@@ -5,7 +5,7 @@ import android.app.Activity;
 import org.pimatic.model.ConnectionOptions;
 
 /**
- * Created by h3llfire on 16.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class Connection {
 

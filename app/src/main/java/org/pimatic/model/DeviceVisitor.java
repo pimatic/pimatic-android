@@ -1,7 +1,7 @@
 package org.pimatic.model;
 
 /**
- * Created by h3llfire on 21.06.14.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public interface DeviceVisitor<T> {
 

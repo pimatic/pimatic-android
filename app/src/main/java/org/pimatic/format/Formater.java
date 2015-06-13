@@ -7,7 +7,7 @@ import java.text.NumberFormat;
 import java.util.HashMap;
 
 /**
- * Created by h3llfire on 16.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class Formater {
 

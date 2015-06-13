@@ -11,7 +11,7 @@ import android.util.Log;
 import org.pimatic.accounts.AccountGeneral;
 
 /**
- * Created by h3llfire on 31.05.15.
+ * Created by Oliver Schneider <oliverschneider89+sweetpi@gmail.com>
  */
 public class AccountManager {
     private Context context;
