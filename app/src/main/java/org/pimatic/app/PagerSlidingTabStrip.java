@@ -310,6 +310,10 @@ public class PagerSlidingTabStrip extends HorizontalScrollView {
 
         // default: line below current tab
         View currentTab = tabsContainer.getChildAt(currentPosition);
+        if(currentTab == null) {
+            return;
+        }
+
         float lineLeft = currentTab.getLeft();
         float lineRight = currentTab.getRight();
 
