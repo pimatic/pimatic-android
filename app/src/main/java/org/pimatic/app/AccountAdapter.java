@@ -62,10 +62,7 @@ public class AccountAdapter extends ArrayAdapter<String> {
             viewHolder.name = (TextView) rowView.findViewById(R.id.accountName);
             viewHolder.title = (TextView) rowView.findViewById(R.id.accountTitle);
             rowView.setTag(viewHolder);
-            if (!isDropdown) {
-                viewHolder.name.setTextColor(0xFFFFFFFF);
-                viewHolder.title.setTextColor(0xFFFFFFFF);
-            }
+            viewHolderAddExtras(viewHolder, isDropdown);
         }
 
         // fill data
@@ -76,9 +73,20 @@ public class AccountAdapter extends ArrayAdapter<String> {
         return rowView;
     }
 
+    public String getAccountName(final int pos) {
+        return names.get(pos);
+    }
+
     static class ViewHolder {
         public TextView title;
         public TextView name;
     }
 
+    protected void viewHolderAddExtras(AccountAdapter.ViewHolder viewHolder, boolean isDropdown) {
+        if (!isDropdown) {
+            viewHolder.name.setTextColor(0xFFFFFFFF);
+            viewHolder.title.setTextColor(0xFFFFFFFF);
+        }
+    }
 }
+

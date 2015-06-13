@@ -48,22 +48,28 @@ public class AccountManager extends UpdateEventEmitter<AccountManager.UpdateList
         return names;
     }
 
+    public Account getAccountByName(String accountName) {
+        final Account availableAccounts[] = accountManager.getAccountsByType(AccountGeneral.ACCOUNT_TYPE);
+        for (int i = 0; i < availableAccounts.length; i++) {
+            if (availableAccounts[i].name.equals(accountName)) {
+                return availableAccounts[i];
+            }
+        }
+        return null;
+    }
+
     /**
      * Get the Connection details for a AccountName
      * @param accountName account name in the form of "user@host"
      * @return ConnectionOptions that can be used to establish a connection
      */
     public ConnectionOptions getConnectionFor(final String accountName) {
-        final Account availableAccounts[] = accountManager.getAccountsByType(AccountGeneral.ACCOUNT_TYPE);
-        for (int i = 0; i < availableAccounts.length; i++) {
-            if (availableAccounts[i].name.equals(accountName)) {
-                Account account = availableAccounts[i];
-                String url = accountManager.getUserData(account, AccountGeneral.ACCOUNT_USER_DATA_URL);
-                return ConnectionOptions.fromAuthToken(url);
-            }
-            ;
+        final Account account = getAccountByName(accountName);
+        if(account == null) {
+            return null;
         }
-        return null;
+        String url = accountManager.getUserData(account, AccountGeneral.ACCOUNT_USER_DATA_URL);
+        return ConnectionOptions.fromAuthToken(url);
     }
 
     /**
