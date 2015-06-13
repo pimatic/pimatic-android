@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class AccountManager extends UpdateEventEmitter<AccountManager.UpdateListener> {
 
-    private static android.accounts.AccountManager accountManager;
+    private android.accounts.AccountManager accountManager;
 
     private static AccountManager singleton;
     public static AccountManager getInstance(Context context) {
